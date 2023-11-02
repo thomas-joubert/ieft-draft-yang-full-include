@@ -1,7 +1,7 @@
 VERSION=00
 VERSION_PREC=$$(($(VERSION)-1))
 VERSION_PREC_PRT=$(shell printf "%02d" ${VERSION_PREC} )
-NAME=draft-blaise-yang-full-include
+NAME=draft-claise-yang-full-include
 
 all:
 	cd builder; python3 build_draft.py ${VERSION}
