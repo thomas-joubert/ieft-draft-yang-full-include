@@ -1,0 +1,30 @@
+{
+  "ietf-yang-library:yang-library": {
+    "module-set": [
+      {
+        "name": "mounter-set",
+        "module": [
+          {
+            "name":"ietf-yang-schema-mount",
+            "namespace": "urn:ietf:params:xml:ns:yang:ietf-yang-schema-mount"
+          },
+          {
+            "name": "mounter",
+            "namespace": "urn:mounter"
+          }
+        ],
+        "import-only-module": [
+          {
+            "name": "ietf-yang-types",
+            "revision": "2013-07-15",
+            "namespace": "urn:ietf:params:xml:ns:yang:ietf-yang-types"
+          }
+        ]
+      }
+    ],
+    "content-id": "1"
+  },
+  "ietf-yang-library:modules-state": {
+    "module-set-id": "1"
+  }
+}
