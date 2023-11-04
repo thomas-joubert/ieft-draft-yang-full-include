@@ -2,15 +2,15 @@
   "ietf-yang-library:yang-library": {
     "module-set": [
       {
-        "name": "mounter-set",
+        "name": "network-level-set",
         "module": [
           {
             "name":"ietf-yang-schema-mount",
             "namespace": "urn:ietf:params:xml:ns:yang:ietf-yang-schema-mount"
           },
           {
-            "name": "mounter",
-            "namespace": "urn:mounter"
+            "name": "network-level",
+            "namespace": "urn:network-level"
           }
         ],
         "import-only-module": [

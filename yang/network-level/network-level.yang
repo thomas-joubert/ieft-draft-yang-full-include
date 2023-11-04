@@ -1,6 +1,6 @@
-module mounter {
+module network-level {
   yang-version 1.1;
-  namespace "urn:mounter";
+  namespace "urn:network-level";
   prefix "mntr";
 
   import ietf-yang-schema-mount {

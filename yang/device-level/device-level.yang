@@ -1,6 +1,6 @@
-module mountee {
+module device-level {
   yang-version 1.1;
-  namespace "urn:mountee";
+  namespace "urn:device-level";
   prefix "mnt";
 
   leaf hostname {
