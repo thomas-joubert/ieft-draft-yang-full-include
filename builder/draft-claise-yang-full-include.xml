@@ -6,10 +6,9 @@
 <!ENTITY wj     "&#8288;">
 ]>
 <?xml-model href="rfc7991bis.rnc"?>
-<!-- <?xml-stylesheet type="text/xsl" href="rfc2629.xslt" ?> -->
 <rfc
     xmlns:xi="http://www.w3.org/2001/XInclude"
-    docName="draft-quilbeuf-netconf-configuration-tracing-00"
+    docName="draft-jouqui-netmod-yang-full-include-00"
     category="std"
     ipr="trust200902"
     obsoletes=""
@@ -22,11 +21,17 @@
     version="3" >
 <front>
     <title abbrev="YANG Full Include">YANG Full Include</title>
-    <seriesInfo name="Internet-Draft" value="draft-blaise-yang-full-include"/>
-    <author fullname="Benoit Claise" initials="B" surname="Claise">
+    <seriesInfo name="Internet-Draft" value="draft-jouqui-netmod-yang-full-include"/>
+    <author fullname="Thomas" initials="T" surname="Joubert">
         <organization>Huawei</organization>
         <address>
-            <email>benoit.claise@huawei.com</email>
+            <email>thomas.joubert1@huawei-partners.com</email>
+        </address>
+    </author>
+    <author fullname="Jean" initials="J" surname="Quilbeuf">
+        <organization>Huawei</organization>
+        <address>
+            <email>jean.quilbeuf@huawei.com</email>
         </address>
     </author>
     <date year="{{year}}" month="{{month}}" day="{{day}}"/>
@@ -85,87 +90,114 @@
             The following terms are defined in <xref target="RFC7950"/>:
         </t>
         <ul>
-            <li> data-node</li>
+            <li>data model</li>
+            <li>data node</li>
+        </ul>
+        <t>
+            The following terms are defined in <xref target="RFC7950"/>:
+        </t>
+        <ul>
+            <li>mount point</li>
         </ul>
     </section>
     <section anchor="yang-full-include">
         <name>Full Include</name>
         <t>
-            The full include mechanism defined in this document completes the use
-            cases presented in RFC8528, providing a mechanism to support insertion
-            of modules at compile time.
+            The full include mechanism defined in this document completes <xref target="RFC8528"/>, by providing a mechanism to "mount" modules at design time.
+            Supporting mounting modules at this step of the data model life cycle is left out of scope in <xref target="RFC8528"/>.
         </t>
-        <section>
+        <t>
+            The approach for supporting the full include mechanism is to keep the semantics of <xref target="RFC8528"/> for the resulting data model.
+            In <xref target="RFC8528"/>, the list of modules to mount in each mount point is left to the NETCONF server.
+            In this document, we propose the full include mechanism to define this mapping directly in the YANG module that includes the mounted modules.
+        </t>
+        <t>
+            In the sequel, we use "full" as the prefix for the module 'ietf-yang-full-include' (see <xref target="yang-module-code"/>).
+            Thus "full:include" refers to the extension 'include' defined in that module.
+        </t>
+        <section anchor="yang-full-include-def">
             <name>Definition</name>
             <t>
-                The "full-include" statement (defined in the "ietf-yang-full-include" module) can appear as a substatement of the following statements:
+                The "full:include" statement can appear as a sub-statement of the following statements:
             </t>
             <ul>
                 <li>container</li>
                 <li>list</li>
             </ul>
             <t>
-                The "full-include" statement takes as an argument an identifier, refering to an imported module. Modules can contains
-                multiple uses of the "full-include" statement. The "container" and "list" statements MAY contain multiple uses
-                of the "full-include" statement on the same level, as long as they refer to different imported modules.
+                The "full:include" statement takes as an argument a prefix, that must be the prefix associated to an imported module. Modules can contain
+                multiple uses of the "full:include" statement. The "container" and "list" statements MAY contain multiple uses
+                of the "full:include" statement on the same level.
+                These multiple uses define the full list of modules to be included, rooted in node where the "full:include" statement is used.
             </t>
+            <t>
+                The "full:include" statement can be interpreted using YANG Schema Mount <xref target="RFC8528"/>, by following these steps:
+            </t>
+            <ol>
+                <li>For each set of "full:include" statement located in the same node, replace them by a single "mount-point" with a unique label.</li>
+                <li>Declare each of these "mount-points" as "shared-schema" in the data model defined in <xref target="RFC8528"/>.</li>
+                <li>
+                    In the instance corresponding to each "mount-point", define the ietf-yang-library <xref target="RFC8525"/> to include a module-set (at '/yang-library/module-set/) with the following.
+                    The list 'module' contains an entry for every module referred to in the set of "full:include" statements corresponding to the "mount-point".
+                    Additionally, the list 'module' contains an entry for "ietf-yang-library" as it is needed by YANG Schema mount.
+                    As usual, the list 'imported-modules' contains the list of dependencies needed by the modules in the 'module' list.
+                </li>
+            </ol>
+            <t>An example of module using "full:include" and its translation into a similar YANG Schema mount version is presented in <xref target="examples"/>.</t>
         </section>
         <section>
             <name>Limitations</name>
             <ul>
-                <li> "full-include" statements MUST NOT be used with modules already using the "full-include" statement. Recursivity is not supported.</li>
-                <li> Modules used as arguments for the "full-include" statement MUST be valid and compile successfully, independently of the module it is used in.</li>
+                <li> A module MUST NOT use the "full:include" statement with its own prefix as argument. This rule prevents any infinite recursion in the mounted schemas.</li>
+                <li> Modules used as arguments for the "full:include" statement MUST be valid and compile successfully, independently of the module it is used in.</li>
             </ul>
         </section>
-</section>
-<section anchor="full-include-of-YANG-schema-nodes">
-    <name>Full Include of YANG Schema Nodes</name>
-    <section>
-        <name>Included Data Nodes Path Adjustment</name>
-        <t>
-            In the case of the call to a "leafref" statement, one must be able to specify the path of a leaf, even through a module passed as an argument to a "full-include" statement.
-            The paths of the nodes contained in the module (refered in the following paragraph as "the included nodes") used in a "full-include" statement are computed as follows.
-            TODO: explain how the path are computed, which basically boils down to concatenating the main module path with the included one ?
-        </t>
     </section>
-    <section anchor="rpc-operations">
-        <name>RPC operations</name>
-        <t>
-            Todo, read the schema-mount RFC part on this, and apply to our case
-        </t>
-    </section>
-</section>
-<section anchor="yang-module">
-    <name>YANG module</name>
-    <t> We present in this section the YANG module defining the "full-include" extension </t>
-    <section anchor="module-tree">
-        <name>Overview</name>
-        <t> The tree representation of our YANG module is depicted in <xref target="module-tree-fig"/> </t>
-        <figure anchor="module-tree-fig" >
-            <name>Tree representation of ietf-yang-full-include YANG module</name>
-            <artwork><![CDATA[
-                {{full_include_tree}}
-                ]]>
-        </artwork>
-    </figure>
-    <t>
-        TODO: write the description
-    </t>
-</section>
 
-<section anchor="module-code" >
-    <name>YANG module ietf-full-include-id</name>
-    <sourcecode name="ietf-full-include@2023-11-03.yang" type="yang" markers="true" ><![CDATA[
-        {{ full_include_yang }}
-        ]]></sourcecode>
-</section>
-<section anchor="use-examples" >
-    <name>Examples Of Use</name>
-    <t>
-        Todo: add examples of use. Illustrating both the "full-include" statement, as well as the "leafref" through a module that has been "fully-included".
-    </t>
-</section>
+    <!-- [We’re not yet there, let’s keep it simple for now]section>
+        <name>Implementation strategies</name>
+        <section>
+            <name>Re-using YANG schema mount</name>
+        </section>
+        <section>
+            <section anchor="full-include-of-YANG-schema-nodes">
+                <name>Defining a new extension</name>
+                <section>
+                    <name>Included Data Nodes Path Adjustment</name>
+                    <t>
+                        In the case of the call to a "leafref" statement, one must be able to specify the path of a leaf, even through a module passed as an argument to a "full-include" statement.
+                        The paths of the nodes contained in the module (referred in the following paragraph as "the included nodes") used in a "full-include" statement are computed as follows.
+                        TODO: explain how the path are computed, which basically boils down to concatenating the main module path with the included one ?
+                    </t>
+                </section>
+                <section anchor="rpc-operations">
+                    <name>RPC operations</name>
+                    <t>
+                        Todo, read the schema-mount RFC part on this, and apply to our case
+                    </t>
+                </section>
+            </section>
+        </section>
+    </section-->
+
+    <section anchor="yang-module-code">
+        <name>ietf-full-include YANG module</name>
+        <t>
+            We present in this section the YANG module defining the "full-include" extension.
+            The module in itself defines solely the 'include' extension.
+            A module importing this extension SHOULD the prefix 'full', so that the statement reads "full:include" when used in the code.
+        </t>
+        <sourcecode name="ietf-full-include@2023-11-03.yang" type="yang" markers="true" ><![CDATA[
+{{ full_include_yang }}
+            ]]>
+        </sourcecode>
     </section>
+    <!--section anchor="use-examples" >
+        <name>Examples Of Use</name>
+        <t>
+            Todo: add examples of use. Illustrating both the "full-include" statement, as well as the "leafref" through a module that has been "fully-included".
+        </t>
+    </section-->
 
     <section anchor="security">
         <name>Security Considerations</name>
@@ -179,15 +211,31 @@
     <section>
         <name>Contributors</name>
     </section>
+    <section>
+        <name>Open issues</name>
+        <ul>
+            <li>Do we want to support the parent-nodes mechanism from <xref target="RFC8528"/>?</li>
+            <li>Do we allow full include from within a grouping?</li>
+            <li>Does this mechanism already exist?</li>
+        </ul>
+    </section>
     </middle>
     <back>
-        <references title="Normative References">
-            <?rfc include="http://xml.resource.org/public/rfc/bibxml/reference.RFC.8528.xml"?>
-            <?rfc include="http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml"?>
-            <?rfc include="http://xml.resource.org/public/rfc/bibxml/reference.RFC.6241.xml"?>
-            <?rfc include="http://xml.resource.org/public/rfc/bibxml/reference.RFC.8174.xml"?>
-            <?rfc include="http://xml.resource.org/public/rfc/bibxml/reference.RFC.8340.xml"?>
-            <?rfc include="http://xml.resource.org/public/rfc/bibxml/reference.RFC.7950.xml"?>
+        <references>
+            <name>References</name>
+            <references>
+                <name>Normative References</name>
+                <xi:include href="http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml"/>
+                <xi:include href="http://xml.resource.org/public/rfc/bibxml/reference.RFC.7950.xml"/>
+                <xi:include href="http://xml.resource.org/public/rfc/bibxml/reference.RFC.8174.xml"/>
+                <xi:include href="http://xml.resource.org/public/rfc/bibxml/reference.RFC.8528.xml"/>
+            </references>
+            <references>
+                <name>Informative References</name>
+                <xi:include href="http://xml.resource.org/public/rfc/bibxml/reference.RFC.6241.xml"/>
+                <xi:include href="http://xml.resource.org/public/rfc/bibxml/reference.RFC.8525.xml"/>
+                <xi:include href="http://xml.resource.org/public/rfc/bibxml/reference.RFC.8340.xml"/>
+            </references>
         </references>
         <?rfc needLines="100"?>
         <section>
@@ -196,8 +244,125 @@
                 No revisions
             </t>
         </section>
-        <section anchor="usage">
-            <name>Tracing configuration changes</name>
+        <section anchor="examples">
+            <name>Examples</name>
+            <t>
+                In this section we present some minimalistic examples in order to illustrate the "full:include" statement.
+                For these examples, we are in a situation where we have a device-level module already defined and we want to have a network-level module that represent a list of device, each having an independent instance of the device-level module.
+                This situation might arise if we want to simplify the network management by presenting a unified model for the network.
+                In that case, the heterogeneity of the devices should be handled by mapping their model to the device-level module (which is clearly out of scope for this draft).
+            </t>
+            <t>
+                In our simplistic example, the device-level module simply exposes the hostname and the cpu-usage of the device.
+                Note that we cannot modify this device-level module, because in a more realistic example we would be reusing standard modules.
+                The tree representation (<xref target="RFC8340"/>) of the 'device-level' module is depicted in <xref target="device-level-tree"/>.
+            </t>
+            <figure anchor="device-level-tree">
+                <name>YANG Tree representation of the device-level module.</name>
+                <artwork type="ascii-art">
+                    <![CDATA[
+{{device_level_tree}}
+        ]]>
+                </artwork>
+            </figure>
+            <t>
+                For the network-level module, we have a list of devices indexed by their 'device-id'.
+                The tree representation (<xref target="RFC8340"/>) of such a module is depicted in <xref target="network-level-tree-stub"/>.
+            </t>
+            <figure anchor="network-level-tree-stub">
+                <name>YANG Tree representation of a stub for the network-level module</name>
+                <artwork type="ascii-art">
+                    <![CDATA[
+{{network_level_tree_stub}}
+        ]]>
+                </artwork>
+            </figure>
+            <t>
+                The goal is now to complete this stub so that the full contents of the 'device-level' is added under the "device" list.
+            </t>
+            <section>
+                <name>Example using YANG Full Include</name>
+                <t>
+                    We propose in this section a YANG module for 'network-level'.
+                    The YANG code is presented in <xref target="network-level-full-include"/>.
+                </t>
+                <figure anchor="network-level-full-include">
+                    <name>Version of the network-level module using full:include</name>
+                    <artwork type="ascii-art">
+                        <![CDATA[
+{{network_level_fi_yang}}
+                        ]]>
+                    </artwork>
+                </figure>
+                <t>
+                    At the moment, this code is accepted by the YANG compilers, but since the extension is not implemented, it simply ignores it.
+                    Note that all the information (which modules to include, where to include them) is defined in this module.
+                    More specifically, the line 'full:include "dev-l";' states that the full schema of the 'device-level' module, identified by its prefix "dev-l" must be included at that location.
+                    By adding more occurrences of "full:include" there, one can define a more complex schema to be included at that location.
+                </t>
+            </section>
+            <section>
+                <name>Using YANG Schema Mount</name>
+                <t>
+                    In this section, we show how a similar result could be attained using YANG Schema Mount.
+                    The network-level module is presented in <xref target="network-level-schema-mount"/>.
+                </t>
+                <figure anchor="network-level-schema-mount">
+                    <name>Version of the network-level module using Schema Mount</name>
+                    <artwork type="ascii-art">
+                        <![CDATA[
+{{network_level_sm_yang}}
+                        ]]>
+                    </artwork>
+                </figure>
+                <t>
+                    As explained in <xref target="yang-full-include-def"/>, the yang-library corresponding to the modules to include, as well as the data required by 'ietf-yang-mount' needs to be specified in some other files.
+                    Using the 'yanglint' tool from libyang (<eref target="https://github.com/CESNET/libyang"/>), this module can be compiled to provide a tree representation as shown in <xref target="tree-full-sm"/>.
+                </t>
+                <figure anchor="tree-full-sm">
+                    <name>Full tree of  both network- and device-level using Schema Mount</name>
+                    <artwork type="ascii-art">
+                        <![CDATA[
+module: network-level
+  +--rw devices
+     +--mp device* [device-id]
+        +--rw hostname/    string
+        +--ro cpu-usage/?  int8
+        +--rw device-id    string
+                        ]]>
+                    </artwork>
+                </figure>
+                <t>
+                    The command for obtaining that schema is 'yanglint -f tree -p . -x extension-data.xml -Y network-level-yanglib.xml  yang/network-level.yang', assuming all the YANG modules and the two xml files are in the current folder.
+                    The file 'network-level-yanglib.xml' contains the YANG Library data for the network-level module.
+                    The file 'extension-data.xml' contains the YANG Library data defining the schema to use at the mount point, as well as the data required by YANG Schema Mount.
+                    Both are reproduced in <xref target="files"/>.
+                </t>
+            </section>
+            <section anchor="files">
+                <name>Support Files</name>
+                <t>
+                    The code of the 'device-level' module is given in <xref target="device-level-yang"/>.
+                    Then the data files 'network-level-yanglib.xml' and 'extension_data.xml' are provided.
+                    These files are needed to compile the Schema Mount version of our example with yanglint.
+                </t>
+                <figure anchor="device-level-yang">
+                    <name>device-level YANG module</name>
+                    <artwork type="ascii-art">
+                        <![CDATA[
+{{device_level_yang}}
+                        ]]>
+                    </artwork>
+                </figure>
+                <sourcecode name="network-level-yanglib.xml" type="xml" markers="true" ><![CDATA[
+{{network_level_yanglib_data}}
+                ]]>
+                </sourcecode>
+                <sourcecode name="extension_data.xml" type="xml" markers="true" ><![CDATA[
+{{extension_data}}
+                ]]>
+                </sourcecode>
+            </section>
         </section>
         <section numbered="false">
             <name>Acknowledgements</name>

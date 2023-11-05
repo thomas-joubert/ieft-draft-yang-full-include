@@ -3,8 +3,12 @@ module network-level {
   namespace "urn:network-level";
   prefix "net-l";
 
-  import ietf-yang-schema-mount {
-    prefix yangmnt;
+  import "ietf-yang-full-include" {
+    prefix "full";
+  }
+
+  import "device-level" {
+    prefix "dev-l";
   }
 
   container devices {
@@ -13,7 +17,7 @@ module network-level {
       leaf device-id {
         type string;
       }
-      yangmnt:mount-point "device-schema";
+      full:include "dev-l";
     }
   }
 }
