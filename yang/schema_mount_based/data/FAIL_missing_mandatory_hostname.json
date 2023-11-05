@@ -1,0 +1,9 @@
+{
+  "network-level:devices": {
+    "device": [
+      {
+        "device-id": "PE1"
+      }
+    ]
+  }
+}

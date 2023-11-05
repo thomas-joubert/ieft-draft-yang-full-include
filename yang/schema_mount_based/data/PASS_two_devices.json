@@ -1,0 +1,16 @@
+{
+  "network-level:devices": {
+    "device": [
+      {
+        "device-id": "PE1",
+        "device-level:hostname": "pe1.acme.org",
+        "device-level:cpu_usage": 12
+      },
+      {
+        "device-id": "PE2",
+        "device-level:hostname": "pe2.acme.org",
+        "device-level:cpu_usage": 80
+      }
+    ]
+  }
+}

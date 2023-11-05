@@ -9,7 +9,6 @@ module device-level {
   }
   leaf cpu-usage {
     config false;
-    mandatory true;
     type int8;
   }
 }
