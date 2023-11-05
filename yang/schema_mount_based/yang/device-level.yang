@@ -4,10 +4,12 @@ module device-level {
   prefix "mnt";
 
   leaf hostname {
+    mandatory true;
     type string;
   }
   leaf cpu-usage {
     config false;
+    mandatory true;
     type int8;
   }
 }
