@@ -211,7 +211,7 @@
         <t>
             We present in this section the YANG module defining the "full-include" extension.
             The module in itself defines solely the 'include' extension.
-            A module importing this extension SHOULD the prefix 'full', so that the statement reads "full:include" when used in the code.
+            A module importing this extension SHOULD use the prefix 'full', so that the statement reads "full:include" when used in the code.
         </t>
         <sourcecode name="ietf-full-include@2023-11-03.yang" type="yang" markers="true" ><![CDATA[
 {{ full_include_yang }}
