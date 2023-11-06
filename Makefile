@@ -1,4 +1,4 @@
-VERSION=00
+VERSION=01
 VERSION_PREC=$$(($(VERSION)-1))
 VERSION_PREC_PRT=$(shell printf "%02d" ${VERSION_PREC} )
 NAME=draft-jouqui-netmod-yang-full-include
