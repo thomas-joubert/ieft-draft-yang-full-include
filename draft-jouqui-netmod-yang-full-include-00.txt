@@ -5,8 +5,8 @@
 NETMOD                                                        T. Joubert
 Internet-Draft                                               J. Quilbeuf
 Intended status: Standards Track                               B. Claise
-Expires: 8 May 2024                                               Huawei
-                                                         5 November 2023
+Expires: 9 May 2024                                               Huawei
+                                                         6 November 2023
 
 
                            YANG Full Include
@@ -37,7 +37,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 8 May 2024.
+   This Internet-Draft will expire on 9 May 2024.
 
 Copyright Notice
 
@@ -53,7 +53,7 @@ Copyright Notice
 
 
 
-Joubert, et al.            Expires 8 May 2024                   [Page 1]
+Joubert, et al.            Expires 9 May 2024                   [Page 1]
 
 Internet-Draft              YANG Full Include              November 2023
 
@@ -109,7 +109,7 @@ Table of Contents
 
 
 
-Joubert, et al.            Expires 8 May 2024                   [Page 2]
+Joubert, et al.            Expires 9 May 2024                   [Page 2]
 
 Internet-Draft              YANG Full Include              November 2023
 
@@ -165,7 +165,7 @@ Internet-Draft              YANG Full Include              November 2023
 
 
 
-Joubert, et al.            Expires 8 May 2024                   [Page 3]
+Joubert, et al.            Expires 9 May 2024                   [Page 3]
 
 Internet-Draft              YANG Full Include              November 2023
 
@@ -221,7 +221,7 @@ Internet-Draft              YANG Full Include              November 2023
 
 
 
-Joubert, et al.            Expires 8 May 2024                   [Page 4]
+Joubert, et al.            Expires 9 May 2024                   [Page 4]
 
 Internet-Draft              YANG Full Include              November 2023
 
@@ -277,7 +277,7 @@ Internet-Draft              YANG Full Include              November 2023
 
 
 
-Joubert, et al.            Expires 8 May 2024                   [Page 5]
+Joubert, et al.            Expires 9 May 2024                   [Page 5]
 
 Internet-Draft              YANG Full Include              November 2023
 
@@ -333,7 +333,7 @@ Internet-Draft              YANG Full Include              November 2023
 
 
 
-Joubert, et al.            Expires 8 May 2024                   [Page 6]
+Joubert, et al.            Expires 9 May 2024                   [Page 6]
 
 Internet-Draft              YANG Full Include              November 2023
 
@@ -389,7 +389,7 @@ Internet-Draft              YANG Full Include              November 2023
 
 
 
-Joubert, et al.            Expires 8 May 2024                   [Page 7]
+Joubert, et al.            Expires 9 May 2024                   [Page 7]
 
 Internet-Draft              YANG Full Include              November 2023
 
@@ -445,7 +445,7 @@ Internet-Draft              YANG Full Include              November 2023
 
 
 
-Joubert, et al.            Expires 8 May 2024                   [Page 8]
+Joubert, et al.            Expires 9 May 2024                   [Page 8]
 
 Internet-Draft              YANG Full Include              November 2023
 
@@ -501,7 +501,7 @@ Appendix B.  Examples
 
 
 
-Joubert, et al.            Expires 8 May 2024                   [Page 9]
+Joubert, et al.            Expires 9 May 2024                   [Page 9]
 
 Internet-Draft              YANG Full Include              November 2023
 
@@ -557,7 +557,7 @@ B.1.  Example using YANG Full Include
 
 
 
-Joubert, et al.            Expires 8 May 2024                  [Page 10]
+Joubert, et al.            Expires 9 May 2024                  [Page 10]
 
 Internet-Draft              YANG Full Include              November 2023
 
@@ -613,7 +613,7 @@ B.2.  Using YANG Schema Mount
 
 
 
-Joubert, et al.            Expires 8 May 2024                  [Page 11]
+Joubert, et al.            Expires 9 May 2024                  [Page 11]
 
 Internet-Draft              YANG Full Include              November 2023
 
@@ -669,7 +669,7 @@ B.3.  Support Files
 
 
 
-Joubert, et al.            Expires 8 May 2024                  [Page 12]
+Joubert, et al.            Expires 9 May 2024                  [Page 12]
 
 Internet-Draft              YANG Full Include              November 2023
 
@@ -725,7 +725,7 @@ Internet-Draft              YANG Full Include              November 2023
 
 
 
-Joubert, et al.            Expires 8 May 2024                  [Page 13]
+Joubert, et al.            Expires 9 May 2024                  [Page 13]
 
 Internet-Draft              YANG Full Include              November 2023
 
@@ -781,7 +781,7 @@ Internet-Draft              YANG Full Include              November 2023
 
 
 
-Joubert, et al.            Expires 8 May 2024                  [Page 14]
+Joubert, et al.            Expires 9 May 2024                  [Page 14]
 
 Internet-Draft              YANG Full Include              November 2023
 
@@ -806,17 +806,17 @@ Acknowledgements
 
 Authors' Addresses
 
-   Thomas
+   Thomas Joubert
    Huawei
    Email: thomas.joubert1@huawei-partners.com
 
 
-   Jean
+   Jean Quilbeuf
    Huawei
    Email: jean.quilbeuf@huawei.com
 
 
-   Benoit
+   Benoit Claise
    Huawei
    Email: benoit.claise@huawei.com
 
@@ -837,4 +837,4 @@ Authors' Addresses
 
 
 
-Joubert, et al.            Expires 8 May 2024                  [Page 15]
+Joubert, et al.            Expires 9 May 2024                  [Page 15]

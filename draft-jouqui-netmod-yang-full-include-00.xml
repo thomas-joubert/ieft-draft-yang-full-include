@@ -22,25 +22,25 @@
 <front>
     <title abbrev="YANG Full Include">YANG Full Include</title>
     <seriesInfo name="Internet-Draft" value="draft-jouqui-netmod-yang-full-include"/>
-    <author fullname="Thomas" initials="T" surname="Joubert">
+    <author fullname="Thomas Joubert" initials="T" surname="Joubert">
         <organization>Huawei</organization>
         <address>
             <email>thomas.joubert1@huawei-partners.com</email>
         </address>
     </author>
-    <author fullname="Jean" initials="J" surname="Quilbeuf">
+    <author fullname="Jean Quilbeuf" initials="J" surname="Quilbeuf">
         <organization>Huawei</organization>
         <address>
             <email>jean.quilbeuf@huawei.com</email>
         </address>
     </author>
-    <author fullname="Benoit" initials="B" surname="Claise">
+    <author fullname="Benoit Claise" initials="B" surname="Claise">
         <organization>Huawei</organization>
         <address>
             <email>benoit.claise@huawei.com</email>
         </address>
     </author>
-    <date year="2023" month="11" day="5"/>
+    <date year="2023" month="11" day="6"/>
     <area>General</area>
     <workgroup>NETMOD</workgroup>
     <abstract>
