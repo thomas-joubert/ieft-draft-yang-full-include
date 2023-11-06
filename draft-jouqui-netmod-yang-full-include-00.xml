@@ -40,7 +40,7 @@
             <email>benoit.claise@huawei.com</email>
         </address>
     </author>
-    <date year="{{year}}" month="{{month}}" day="{{day}}"/>
+    <date year="2023" month="11" day="6"/>
     <area>General</area>
     <workgroup>NETMOD</workgroup>
     <abstract>
@@ -211,10 +211,70 @@
         <t>
             We present in this section the YANG module defining the "full-include" extension.
             The module in itself defines solely the 'include' extension.
-            A module importing this extension SHOULD use the prefix 'full', so that the statement reads "full:include" when used in the code.
+            A module importing this extension SHOULD the prefix 'full', so that the statement reads "full:include" when used in the code.
         </t>
         <sourcecode name="ietf-full-include@2023-11-03.yang" type="yang" markers="true" ><![CDATA[
-{{ full_include_yang }}
+module ietf-yang-full-include {
+  yang-version 1.1;
+  namespace "urn:ietf:params:xml:ns:yang:ietf-yang-full-include";
+  prefix full;
+
+  organization
+    "IETF NETMOD (NETCONF Data Modeling Language) Working Group";
+  contact
+    "WG Web:   <https://datatracker.ietf.org/wg/netmod/>
+     WG List:  <mailto:netmod@ietf.org>
+
+     Editor:   ";
+  description
+    "This module defines a YANG extension statement that can be used
+     to incorporate data models defined in other YANG modules in a
+     module.
+
+     The key words 'MUST', 'MUST NOT', 'REQUIRED', 'SHALL', 'SHALL
+     NOT', 'SHOULD', 'SHOULD NOT', 'RECOMMENDED', 'NOT RECOMMENDED',
+     'MAY', and 'OPTIONAL' in this document are to be interpreted as
+     described in BCP 14 (RFC 2119) (RFC 8174) when, and only when,
+     they appear in all capitals, as shown here.
+
+     Copyright (c) 2023 IETF Trust and the persons identified as
+     authors of the code.  All rights reserved.
+
+     Redistribution and use in source and binary forms, with or
+     without modification, is permitted pursuant to, and subject to
+     the license terms contained in, the Revised BSD License set
+     forth in Section 4.c of the IETF Trust's Legal Provisions
+     Relating to IETF Documents
+     (https://trustee.ietf.org/license-info).
+
+     This version of this YANG module is part of RFC XXXX;
+     see the RFC itself for full legal notices.";
+
+  revision 2023-11-05 {
+    description
+      "Initial revision.";
+    reference
+      "RFC XXXX: YANG Full Include";
+  }
+
+  extension include {
+    argument prefix;
+    description
+      "The argument 'prefix' MUST be the prefix of a module imported
+       by the calling module.
+
+       The 'include' statement MUST NOT be used in a YANG
+       version 1 module, neither explicitly nor via a 'uses'
+       statement.
+       The 'include' statement MAY be present as a substatement
+       of 'container' and 'list' and MUST NOT be present elsewhere.
+
+       Whenever a sequence of 'include' statements is used, the
+       schema tree defined by the set of the included modules is
+       inserted in the schema tree of the calling module, at the
+       place where the sequence is declared";
+  }
+}
             ]]>
         </sourcecode>
     </section>
@@ -296,7 +356,9 @@
                 <name>YANG Tree representation of the device-level module.</name>
                 <artwork type="ascii-art">
                     <![CDATA[
-{{device_level_tree}}
+module: device-level
+  +--rw hostname     string
+  +--ro cpu-usage?   int8
         ]]>
                 </artwork>
             </figure>
@@ -308,7 +370,10 @@
                 <name>YANG Tree representation of a stub for the network-level module</name>
                 <artwork type="ascii-art">
                     <![CDATA[
-{{network_level_tree_stub}}
+module: network-level-stub
+  +--rw devices
+     +--rw device* [device-id]
+        +--rw device-id    string
         ]]>
                 </artwork>
             </figure>
@@ -325,7 +390,29 @@
                     <name>Version of the network-level module using full:include</name>
                     <artwork type="ascii-art">
                         <![CDATA[
-{{network_level_fi_yang}}
+module network-level {
+  yang-version 1.1;
+  namespace "urn:network-level";
+  prefix "net-l";
+
+  import "ietf-yang-full-include" {
+    prefix "full";
+  }
+
+  import "device-level" {
+    prefix "dev-l";
+  }
+
+  container devices {
+    list device {
+      key device-id;
+      leaf device-id {
+        type string;
+      }
+      full:include "dev-l";
+    }
+  }
+}
                         ]]>
                     </artwork>
                 </figure>
@@ -346,7 +433,25 @@
                     <name>Version of the network-level module using Schema Mount</name>
                     <artwork type="ascii-art">
                         <![CDATA[
-{{network_level_sm_yang}}
+module network-level {
+  yang-version 1.1;
+  namespace "urn:network-level";
+  prefix "net-l";
+
+  import ietf-yang-schema-mount {
+    prefix yangmnt;
+  }
+
+  container devices {
+    list device {
+      key device-id;
+      leaf device-id {
+        type string;
+      }
+      yangmnt:mount-point "device-schema";
+    }
+  }
+}
                         ]]>
                     </artwork>
                 </figure>
@@ -385,16 +490,131 @@ module: network-level
                     <name>device-level YANG module</name>
                     <artwork type="ascii-art">
                         <![CDATA[
-{{device_level_yang}}
+module device-level {
+  yang-version 1.1;
+  namespace "urn:device-level";
+  prefix mnt;
+
+  leaf hostname {
+    type string;
+    mandatory true;
+  }
+  leaf cpu-usage {
+    type int8;
+    config false;
+  }
+}
                         ]]>
                     </artwork>
                 </figure>
                 <sourcecode name="network-level-yanglib.xml" type="xml" markers="true" ><![CDATA[
-{{network_level_yanglib_data}}
+<yang-library xmlns="urn:ietf:params:xml:ns:yang:ietf-yang-library"
+     xmlns:ds="urn:ietf:params:xml:ns:yang:ietf-datastores">
+   <module-set>
+     <name>main-set</name>
+     <module>
+       <name>ietf-datastores</name>
+       <revision>2018-02-14</revision>
+       <namespace>urn:ietf:params:xml:ns:yang:ietf-datastores</namespace>
+     </module>
+     <module>
+       <name>ietf-yang-library</name>
+       <revision>2019-01-04</revision>
+       <namespace>urn:ietf:params:xml:ns:yang:ietf-yang-library</namespace>
+     </module>
+     <module>
+       <name>ietf-yang-schema-mount</name>
+       <revision>2019-01-14</revision>
+       <namespace>urn:ietf:params:xml:ns:yang:ietf-yang-schema-mount</namespace>
+     </module>
+     <module>
+       <name>network-level</name>
+       <namespace>urn:network-level</namespace>
+     </module>
+     <import-only-module>
+       <name>ietf-yang-types</name>
+       <revision>2013-07-15</revision>
+       <namespace>urn:ietf:params:xml:ns:yang:ietf-yang-types</namespace>
+     </import-only-module>
+     <import-only-module>
+       <name>ietf-inet-types</name>
+       <revision>2013-07-15</revision>
+       <namespace>urn:ietf:params:xml:ns:yang:ietf-inet-types</namespace>
+     </import-only-module>
+   </module-set>
+   <schema>
+     <name>main-schema</name>
+     <module-set>main-set</module-set>
+   </schema>
+   <datastore>
+     <name>ds:running</name>
+     <schema>main-schema</schema>
+   </datastore>
+   <datastore>
+     <name>ds:operational</name>
+     <schema>main-schema</schema>
+   </datastore>
+   <content-id>1</content-id>
+ </yang-library>
+ <modules-state xmlns="urn:ietf:params:xml:ns:yang:ietf-yang-library">
+   <module-set-id>2</module-set-id>
+ </modules-state>
                 ]]>
                 </sourcecode>
                 <sourcecode name="extension_data.xml" type="xml" markers="true" ><![CDATA[
-{{extension_data}}
+<yang-library xmlns="urn:ietf:params:xml:ns:yang:ietf-yang-library"
+              xmlns:ds="urn:ietf:params:xml:ns:yang:ietf-datastores">
+    <module-set>
+        <name>mountee-set</name>
+        <module>
+            <name>device-level</name>
+            <namespace>urn:device-level</namespace>
+        </module>
+        <module>
+            <name>ietf-datastores</name>
+            <revision>2018-02-14</revision>
+            <namespace>urn:ietf:params:xml:ns:yang:ietf-datastores</namespace>
+        </module>
+        <module>
+            <name>ietf-yang-library</name>
+            <revision>2019-01-04</revision>
+            <namespace>urn:ietf:params:xml:ns:yang:ietf-yang-library</namespace>
+        </module>
+        <import-only-module>
+            <name>ietf-yang-types</name>
+            <revision>2013-07-15</revision>
+            <namespace>urn:ietf:params:xml:ns:yang:ietf-yang-types</namespace>
+        </import-only-module>
+        <import-only-module>
+            <name>ietf-inet-types</name>
+            <revision>2013-07-15</revision>
+            <namespace>urn:ietf:params:xml:ns:yang:ietf-inet-types</namespace>
+        </import-only-module>
+    </module-set>
+    <schema>
+        <name>test-schema</name>
+        <module-set>mountee-set</module-set>
+    </schema>
+    <datastore>
+        <name>ds:running</name>
+        <schema>test-schema</schema>
+    </datastore>
+    <datastore>
+        <name>ds:operational</name>
+        <schema>test-schema</schema>
+    </datastore>
+    <content-id>2</content-id>
+</yang-library>
+<modules-state xmlns="urn:ietf:params:xml:ns:yang:ietf-yang-library">
+   <module-set-id>2</module-set-id>
+</modules-state>
+<schema-mounts xmlns="urn:ietf:params:xml:ns:yang:ietf-yang-schema-mount">
+<mount-point>
+    <module>network-level</module>
+    <label>device-schema</label>
+    <shared-schema/>
+</mount-point>
+</schema-mounts>
                 ]]>
                 </sourcecode>
             </section>

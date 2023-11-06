@@ -1,0 +1,14 @@
+module device-level {
+  yang-version 1.1;
+  namespace "urn:device-level";
+  prefix "mnt";
+
+  leaf hostname {
+    mandatory true;
+    type string;
+  }
+  leaf cpu-usage {
+    config false;
+    type int8;
+  }
+}

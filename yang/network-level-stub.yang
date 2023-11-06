@@ -1,0 +1,14 @@
+module network-level-stub {
+  yang-version 1.1;
+  namespace "urn:network-level";
+  prefix "mntr";
+
+  container devices {
+    list device {
+      key device-id;
+      leaf device-id {
+        type string;
+      }
+    }
+  }
+}

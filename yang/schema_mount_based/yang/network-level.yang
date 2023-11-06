@@ -1,0 +1,19 @@
+module network-level {
+  yang-version 1.1;
+  namespace "urn:network-level";
+  prefix "net-l";
+
+  import ietf-yang-schema-mount {
+    prefix yangmnt;
+  }
+
+  container devices {
+    list device {
+      key device-id;
+      leaf device-id {
+        type string;
+      }
+      yangmnt:mount-point "device-schema";
+    }
+  }
+}

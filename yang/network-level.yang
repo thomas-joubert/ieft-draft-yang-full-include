@@ -1,0 +1,23 @@
+module network-level {
+  yang-version 1.1;
+  namespace "urn:network-level";
+  prefix "net-l";
+
+  import "ietf-yang-full-include" {
+    prefix "full";
+  }
+
+  import "device-level" {
+    prefix "dev-l";
+  }
+
+  container devices {
+    list device {
+      key device-id;
+      leaf device-id {
+        type string;
+      }
+      full:include "dev-l";
+    }
+  }
+}
