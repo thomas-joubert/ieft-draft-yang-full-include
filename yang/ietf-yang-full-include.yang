@@ -54,7 +54,7 @@ module ietf-yang-full-include {
        version 1 module, neither explicitly nor via a 'uses'
        statement.
        The 'include' statement MAY be present as a substatement
-       of 'container' and 'list' and MUST NOT be present elsewhere.
+       of 'anydata' and MUST NOT be present elsewhere.
 
        Whenever a sequence of 'include' statements is used, the
        schema tree defined by the set of the included modules is
