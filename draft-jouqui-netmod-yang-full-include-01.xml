@@ -8,7 +8,7 @@
 <?xml-model href="rfc7991bis.rnc"?>
 <rfc
     xmlns:xi="http://www.w3.org/2001/XInclude"
-    docName="draft-jouqui-netmod-yang-full-include-00"
+    docName="draft-jouqui-netmod-yang-full-include-01"
     category="std"
     ipr="trust200902"
     obsoletes=""

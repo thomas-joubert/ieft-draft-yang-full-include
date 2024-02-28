@@ -10,7 +10,7 @@ Expires: 31 August 2024                                           Huawei
 
 
                            YANG Full Include
-                draft-jouqui-netmod-yang-full-include-00
+                draft-jouqui-netmod-yang-full-include-01
 
 Abstract
 
