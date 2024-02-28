@@ -50,7 +50,7 @@
             to reuse a model defined for a device in the context of the
             network, i.e by encapsulating it in a list indexed by device IDs.
             <xref target="RFC8528"/> defines the YANG mount mechanism, partially solving the
-            problem by allowing to mount an arbitrary set of schema at an arbitrary point.
+            problem by allowing to mount an arbitrary set of schemas at an arbitrary point.
             However, YANG mount is only focusing on deploy or runtime. This
             document aims to provide the same mechanism at design time.
         </t>
@@ -118,7 +118,6 @@
             The following terms are defined in <xref target="RFC7950"/>:
         </t>
         <ul>
-            <li>anydata</li>
             <li>data model</li>
             <li>data node</li>
         </ul>
@@ -176,10 +175,33 @@
         </section>
         <section>
             <name>Limitations</name>
+            <t>
+                A module MUST NOT use the "full:embed" statement with its own prefix as argument. This rule prevents any infinite recursion in the mounted schemas.
+            </t>
+            <t>
+                As for YANG Schema Mount, the set of embedded modules is an independent YANG context, where every reference (for instance leaf-ref, augment, when) is contained in that context.
+                It is not possible for an embedded module to refer to the embedding module, which would be rejected by the compiler anyway because it would create a dependency loop.
+                If a server supports a module both at top-level and embedded in another module, the corresponding data instances are disjoint.
+            </t>
+            <t>
+                Activation of the features for the embedded module follows the same rules as for normal module.
+                Therefore it’s not possible to activate some features for some embedded modules only.
+                The feature is either supported by the server and then activated for every module (embedded or not) or not supported and then deactivated for all modules (embedded or not).
+            </t>
+        </section>
+        <section>
+            <name>Allowed sub-statements</name>
+            <t>
+                The following sub-statements are allowed in the "full:embed" statement:
+            </t>
             <ul>
-                <li> A module MUST NOT use the "full:embed" statement with its own prefix as argument. This rule prevents any infinite recursion in the mounted schemas.</li>
-                <li> Modules used as arguments for the "full:embed" statement MUST be valid and compile successfully, independently of the module it is used in.</li>
+                <li>when</li>
+                <li>if-feature</li>
             </ul>
+            <t>
+                Both statements have the same meaning as in <xref target="RFC7950"/>.
+                The when statement MUST NOT refer to nodes which are in the embedded module designated by the "full:embed" statement.
+            </t>
         </section>
     </section>
 
@@ -307,10 +329,51 @@ module ietf-yang-full-embed {
         <name>Open issues</name>
         <ul>
             <li>What name should we give to this draft? Any suggestions instead of full embed?</li>
-            <li>Do we want to support the parent-nodes mechanism from <xref target="RFC8528"/>?</li>
+            <li>Do we want to support the parent-nodes mechanism from <xref target="RFC8528"/>? (see below)</li>
             <li>Do we allow full embed from within a grouping?</li>
             <li>Does this mechanism already exist?</li>
+            <li>Do we want to add a partial embed with an xpath instead of just the prefix?</li>
         </ul>
+        <section>
+            <name>Parent-nodes mechanism from schema mount</name>
+            <t>
+                YANG Schema Mount includes a mechanism to make some nodes from the embedding model available to the embedded model for validation purposes.
+                We could achieve the same by adding a second extension, which can also only appear under a "full:embed" nodes.
+                That extension, for instance named "full:embed-parent-refs" would take a Xpath expression as the in the "parent-reference" leaflist defined in the YANG Schema Mount and would have the same semantics.
+                If several XPath are needed for clarity, the statement can be repeated with several values.
+            </t>
+            <t>
+                As an example, <xref target="pseudo-yang-parent-ref"/> restates the parent-references example from <xref target="RFC8528"/> using this new extension.
+                We might want to put some restrictions on the nodes that can be referred to in the Xpath argument.
+            </t>
+            <figure anchor="pseudo-yang-parent-ref">
+                <name>Pseudo-YANG example of parent-references from <xref target="RFC8528"/> with "full:embed"</name>
+                <artwork type="ascii-art">
+...
+import "ietf-routing" {
+  prefix "rt";
+}
+import "ietf-interfaces" {
+  prefix "if";
+}
+
+...
+container network-instances {
+  list network-instance {
+    leaf name {...}
+    anydata root {
+      full:embed "rt" {
+        full:embed-parent-refs "if:interfaces/if:interface[\
+              ni:bind-network-instance-name = current()/../ni:name]";
+      }
+      // other full:embed if needed
+    }
+  }
+}
+                </artwork>
+
+            </figure>
+        </section>
     </section>
     </middle>
     <back>
@@ -339,8 +402,13 @@ module ietf-yang-full-embed {
         <section>
             <name>Changes between revisions</name>
             <t>
-                No revisions
+                00 -> 01
             </t>
+            <ul>
+                <li>Renamed full include -> full embed</li>
+                <li>Require extension to appear in anydata for clients not supporting extension</li>
+                <li>Allow "if-feature" and "must" as sub-statement of full:embed, explain that feature work at server level</li>
+            </ul>
         </section>
         <section anchor="examples">
             <name>Examples</name>
@@ -651,7 +719,7 @@ module device-level {
         <section numbered="false">
             <name>Acknowledgements</name>
             <t>
-                TODO: acknowledgements
+                Thanks to Ladislav Lhotka for his reviews and comments.
             </t>
         </section>
     </back>
