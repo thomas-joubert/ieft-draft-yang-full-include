@@ -50,7 +50,8 @@
             to reuse a model defined for a device in the context of the
             network, i.e by encapsulating it in a list indexed by device IDs.
             <xref target="RFC8528"/> defines the YANG mount mechanism, partially solving the
-            problem by allowing to include schemas at deploy or runtime. This
+            problem by allowing to mount an arbitrary set of schema at an arbitrary point.
+            However, YANG mount is only focusing on deploy or runtime. This
             document aims to provide the same mechanism at design time.
         </t>
     </abstract>
@@ -59,7 +60,7 @@
     <section anchor="intro" >
         <name>Introduction</name>
         <t>
-            <xref target="RFC8528"/> introduces the challenges of reusing existing YANG modules, especially when they need to be included under a specific node of another module.
+            <xref target="RFC8528"/> introduces the challenges of reusing existing YANG modules, especially when including the full subtree of YANG module under a specific node of another module.
             In that RFC, three different phases of data model life cycle are identified: "design time", "implementation time" and "run time".
             Only the last two are covered.
             We focus here on the first phase of the life cycle, that is inserting modules at design time.
@@ -87,16 +88,17 @@
         <t>
             YANG Schema Mount <xref target="RFC8528"/> and Peer Mount <xref target="I-D.clemm-netmod-peermount"/> focus on mounting a given part of a an existing data instance into another data instance.
             Although the final goal is the same: being able to reuse modules defined elsewhere in order to avoid redefining them, the approach is more focused on the runtime than the design time.
-            In the first case, the mapping between the mount points and the existing modules to be included at that mount point is left to the NETCONF <xref target="RFC6241"/> server.
+            In the first case, the mapping between the mount points and the existing modules to be mounted at that mount point is left to the NETCONF <xref target="RFC6241"/> server.
             Thus, to guarantee that the contents under a given mount point conforms to a predefined schema requires the proper configuration of the server.
             In the case of Peer mount, the focus is on synchronizing a given subtree of a server (remote or local) with a subtree of the local server.
             Again, the contents under the local subtree cannot be enforced from the design time.
         </t>
         <t>
-            In this document, we propose a new extension, named full include.
+            In this document, we propose a new extension, named full embed.
             This extension enables reusing imported modules by rooting them at an arbitrary point of the data model.
-            The concept of mount point from <xref target="RFC8528"/> is replaced by an anydata statement containing list of "full:include" statement, each statement corresponding to the inclusion of one imported module at that location.
-            In that sense, the design time solution is a pure YANG solution that does not rely on external configuration to specify the list of mounted modules, hence the term full include rather than mount.
+            The concept of mount point from <xref target="RFC8528"/> is replaced by an anydata statement containing list of "full:embed" statement, each statement corresponding to the inclusion of one imported module at that location.
+            In that sense, the design time solution is a pure YANG solution that does not rely on external configuration to specify the list of mounted modules, hence the term full embed rather than mount.
+            Also, we use 'embed' not to conflict with the native 'include' statement in YANG <xref target="RFC7950"/>.
         </t>
         <t>
             The obtained data model that we want to associate to our construct is similar to the one obtained by specifying a mount point and binding it to the same set of modules.
@@ -127,56 +129,56 @@
             <li>mount point</li>
         </ul>
     </section>
-    <section anchor="yang-full-include">
-        <name>Full Include</name>
+    <section anchor="yang-full-embed">
+        <name>Full Embed</name>
         <t>
-            The full include mechanism defined in this document completes <xref target="RFC8528"/>, by providing a mechanism to "mount" modules at design time.
+            The full embed mechanism defined in this document completes <xref target="RFC8528"/>, by providing a mechanism to "mount" modules at design time.
             Supporting mounting modules at this step of the data model life cycle is left out of scope in <xref target="RFC8528"/>.
         </t>
         <t>
-            The approach for supporting the full include mechanism is to keep the semantics of <xref target="RFC8528"/> for the resulting data model.
+            The approach for supporting the full embed mechanism is to keep the semantics of <xref target="RFC8528"/> for the resulting data model.
             In <xref target="RFC8528"/>, the list of modules to mount in each mount point is left to the NETCONF server.
-            In this document, we propose the full include mechanism to define this mapping directly in the YANG module that includes the mounted modules.
+            In this document, we propose the full embed mechanism to define this mapping directly in the YANG module that embeds the mounted modules.
         </t>
 		<t>
-			To ensure interoperability with clients that do not support the full include extension, the full include statement can only appear within an anydata node.
-			Clients that do not support the extension will see the contents of the included model as arbitrary data.
-			Clients that support the extension will be able to interpret the contents of the anydata node according to the semantics of the included YANG modules.
+			To ensure interoperability with clients that do not support the full embed extension, the full embed statement can only appear within an anydata node.
+			Clients that do not support the extension will see the contents of the embedded model as arbitrary data.
+			Clients that support the extension will be able to interpret the contents of the anydata node according to the semantics of the embedded YANG modules.
 		</t>
         <t>
-            In the sequel, we use "full" as the prefix for the module 'ietf-yang-full-include' (see <xref target="yang-module-code"/>).
-            Thus "full:include" refers to the extension 'include' defined in that module.
+            In the sequel, we use "full" as the prefix for the module 'ietf-yang-full-embed' (see <xref target="yang-module-code"/>).
+            Thus "full:embed" refers to the extension 'embed' defined in that module.
         </t>
-        <section anchor="yang-full-include-def">
+        <section anchor="yang-full-embed-def">
             <name>Definition</name>
             <t>
-                The "full:include" statement can appear as a sub-statement of anydata.
+                The "full:embed" statement can appear as a sub-statement of anydata.
             </t>
             <t>
-                The "full:include" statement takes as an argument a prefix, that must be the prefix associated to an imported module. Modules can contain
-                multiple uses of the "full:include" statement. An "anydata" statement MAY contain multiple uses of the "full:include" statement.
-                These multiple uses define the full list of modules to be included, rooted in the anydata node where the "full:include" statement is used.
+                The "full:embed" statement takes as an argument a prefix, that must be the prefix associated to an imported module. Modules can contain
+                multiple uses of the "full:embed" statement. An "anydata" statement MAY contain multiple uses of the "full:embed" statement.
+                These multiple uses define the full list of modules to be embedded, rooted in the anydata node where the "full:embed" statement is used.
             </t>
             <t>
-                The "full:include" statement can be interpreted using YANG Schema Mount <xref target="RFC8528"/>, by following these steps:
+                The "full:embed" statement can be interpreted using YANG Schema Mount <xref target="RFC8528"/>, by following these steps:
             </t>
             <ol>
-                <li>For each anydata node containing a set of "full:include" statement, replace them by a container containing single "mount-point" with a unique label.</li>
+                <li>For each anydata node containing a set of "full:embed" statement, replace them by a container containing single "mount-point" with a unique label.</li>
                 <li>Declare each of these "mount-points" as "shared-schema" in the data model defined in <xref target="RFC8528"/>.</li>
                 <li>
                     In the instance corresponding to each "mount-point", define the ietf-yang-library <xref target="RFC8525"/> to include a module-set (at '/yang-library/module-set/) with the following.
-                    The list 'module' contains an entry for every module referred to in the set of "full:include" statements corresponding to the "mount-point".
+                    The list 'module' contains an entry for every module referred to in the set of "full:embed" statements corresponding to the "mount-point".
                     Additionally, the list 'module' contains an entry for "ietf-yang-library" as it is needed by YANG Schema mount.
                     As usual, the list 'imported-modules' contains the list of dependencies needed by the modules in the 'module' list.
                 </li>
             </ol>
-            <t>An example of module using "full:include" and its translation into a similar YANG Schema mount version is presented in <xref target="examples"/>.</t>
+            <t>An example of module using "full:embed" and its translation into a similar YANG Schema mount version is presented in <xref target="examples"/>.</t>
         </section>
         <section>
             <name>Limitations</name>
             <ul>
-                <li> A module MUST NOT use the "full:include" statement with its own prefix as argument. This rule prevents any infinite recursion in the mounted schemas.</li>
-                <li> Modules used as arguments for the "full:include" statement MUST be valid and compile successfully, independently of the module it is used in.</li>
+                <li> A module MUST NOT use the "full:embed" statement with its own prefix as argument. This rule prevents any infinite recursion in the mounted schemas.</li>
+                <li> Modules used as arguments for the "full:embed" statement MUST be valid and compile successfully, independently of the module it is used in.</li>
             </ul>
         </section>
     </section>
@@ -187,13 +189,13 @@
             <name>Re-using YANG schema mount</name>
         </section>
         <section>
-            <section anchor="full-include-of-YANG-schema-nodes">
+            <section anchor="full-embed-of-YANG-schema-nodes">
                 <name>Defining a new extension</name>
                 <section>
                     <name>Included Data Nodes Path Adjustment</name>
                     <t>
-                        In the case of the call to a "leafref" statement, one must be able to specify the path of a leaf, even through a module passed as an argument to a "full-include" statement.
-                        The paths of the nodes contained in the module (referred in the following paragraph as "the included nodes") used in a "full-include" statement are computed as follows.
+                        In the case of the call to a "leafref" statement, one must be able to specify the path of a leaf, even through a module passed as an argument to a "full-embed" statement.
+                        The paths of the nodes contained in the module (referred in the following paragraph as "the embedded nodes") used in a "full-embed" statement are computed as follows.
                         TODO: explain how the path are computed, which basically boils down to concatenating the main module path with the included one ?
                     </t>
                 </section>
@@ -208,16 +210,16 @@
     </section-->
 
     <section anchor="yang-module-code">
-        <name>ietf-full-include YANG module</name>
+        <name>ietf-full-embed YANG module</name>
         <t>
-            We present in this section the YANG module defining the "full-include" extension.
-            The module in itself defines solely the 'include' extension.
-            A module importing this extension SHOULD use the prefix 'full', so that the statement reads "full:include" when used in the code.
+            We present in this section the YANG module defining the "full-embed" extension.
+            The module in itself defines solely the 'embed' extension.
+            A module importing this extension SHOULD use the prefix 'full', so that the statement reads "full:embed" when used in the code.
         </t>
-        <sourcecode name="ietf-full-include@2023-11-03.yang" type="yang" markers="true" ><![CDATA[
-module ietf-yang-full-include {
+        <sourcecode name="ietf-full-embed@2023-11-03.yang" type="yang" markers="true" ><![CDATA[
+module ietf-yang-full-embed {
   yang-version 1.1;
-  namespace "urn:ietf:params:xml:ns:yang:ietf-yang-full-include";
+  namespace "urn:ietf:params:xml:ns:yang:ietf-yang-full-embed";
   prefix full;
 
   organization
@@ -258,22 +260,22 @@ module ietf-yang-full-include {
       "RFC XXXX: YANG Full Include";
   }
 
-  extension include {
+  extension embed {
     argument prefix;
     description
       "The argument 'prefix' MUST be the prefix of a module imported
        by the calling module.
 
-       The 'include' statement MUST NOT be used in a YANG
-       version 1 module, neither explicitly nor via a 'uses'
-       statement.
-       The 'include' statement MAY be present as a substatement
-       of 'anydata' and MUST NOT be present elsewhere.
+       The 'embed' statement MUST NOT be used in a YANG version 1
+       module, neither explicitly nor via a 'uses' statement.
 
-       Whenever a sequence of 'include' statements is used, the
-       schema tree defined by the set of the included modules is
-       inserted in the schema tree of the calling module, at the
-       place where the sequence is declared";
+       The 'embed' statement MAY be present as a substatement of
+       'anydata' and MUST NOT be present elsewhere.
+
+       Whenever a sequence of 'embed' statements is used, the schema
+       tree defined by the set of the included modules is inserted
+       in the schema tree of the calling module, at the place where
+       the sequence is declared";
   }
 }
             ]]>
@@ -282,7 +284,7 @@ module ietf-yang-full-include {
     <!--section anchor="use-examples" >
         <name>Examples Of Use</name>
         <t>
-            Todo: add examples of use. Illustrating both the "full-include" statement, as well as the "leafref" through a module that has been "fully-included".
+            Todo: add examples of use. Illustrating both the "full-embed" statement, as well as the "leafref" through a module that has been "fully-embed".
         </t>
     </section-->
 
@@ -304,9 +306,9 @@ module ietf-yang-full-include {
     <section>
         <name>Open issues</name>
         <ul>
-            <li>What name should we give to this draft? Any suggestions instead of full include?</li>
+            <li>What name should we give to this draft? Any suggestions instead of full embed?</li>
             <li>Do we want to support the parent-nodes mechanism from <xref target="RFC8528"/>?</li>
-            <li>Do we allow full include from within a grouping?</li>
+            <li>Do we allow full embed from within a grouping?</li>
             <li>Does this mechanism already exist?</li>
         </ul>
     </section>
@@ -343,7 +345,7 @@ module ietf-yang-full-include {
         <section anchor="examples">
             <name>Examples</name>
             <t>
-                In this section we present some minimalistic examples in order to illustrate the "full:include" statement.
+                In this section we present some minimalistic examples in order to illustrate the "full:embed" statement.
                 For these examples, we are in a situation where we have a device-level module already defined and we want to have a network-level module that represent a list of device, each having an independent instance of the device-level module.
                 This situation might arise if we want to simplify the network management by presenting a unified model for the network.
                 In that case, the heterogeneity of the devices should be handled by mapping their model to the device-level module (which is clearly out of scope for this draft).
@@ -385,10 +387,10 @@ module: network-level-stub
                 <name>Example using YANG Full Include</name>
                 <t>
                     We propose in this section a YANG module for 'network-level'.
-                    The YANG code is presented in <xref target="network-level-full-include"/>.
+                    The YANG code is presented in <xref target="network-level-full-embed"/>.
                 </t>
-                <figure anchor="network-level-full-include">
-                    <name>Version of the network-level module using full:include</name>
+                <figure anchor="network-level-full-embed">
+                    <name>Version of the network-level module using full:embed</name>
                     <artwork type="ascii-art">
                         <![CDATA[
 module network-level {
@@ -421,9 +423,9 @@ module network-level {
                 </figure>
                 <t>
                     At the moment, this code is accepted by the YANG compilers, but since the extension is not implemented, it simply ignores it.
-                    Note that all the information (which modules to include, where to include them) is defined in this module.
-                    More specifically, the line 'full:include "dev-l";' states that the full schema of the 'device-level' module, identified by its prefix "dev-l" must be included at that location.
-                    By adding more occurrences of "full:include" there, one can define a more complex schema to be included at that location.
+                    Note that all the information (which modules to embed, where to embed them) is defined in this module.
+                    More specifically, the line 'full:embed "dev-l";' states that the full schema of the 'device-level' module, identified by its prefix "dev-l" must be embedded at that location.
+                    By adding more occurrences of "full:embed" there, one can define a more complex schema to be embedded at that location.
                 </t>
             </section>
             <section>
@@ -461,7 +463,7 @@ module network-level {
                     </artwork>
                 </figure>
                 <t>
-                    As explained in <xref target="yang-full-include-def"/>, the yang-library corresponding to the modules to include, as well as the data required by 'ietf-yang-mount' needs to be specified in some other files.
+                    As explained in <xref target="yang-full-embed-def"/>, the yang-library corresponding to the modules to embed, as well as the data required by 'ietf-yang-mount' needs to be specified in some other files.
                     Using the 'yanglint' tool from libyang (<eref target="https://github.com/CESNET/libyang"/>), this module can be compiled to provide a tree representation as shown in <xref target="tree-full-sm"/>.
                 </t>
                 <figure anchor="tree-full-sm">

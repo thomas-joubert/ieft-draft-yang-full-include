@@ -1,6 +1,6 @@
-module ietf-yang-full-include {
+module ietf-yang-full-embed {
   yang-version 1.1;
-  namespace "urn:ietf:params:xml:ns:yang:ietf-yang-full-include";
+  namespace "urn:ietf:params:xml:ns:yang:ietf-yang-full-embed";
   prefix "full";
 
   organization
@@ -44,21 +44,21 @@ module ietf-yang-full-include {
       "RFC XXXX: YANG Full Include";
   }
 
-  extension include {
+  extension embed {
     argument prefix;
     description
       "The argument 'prefix' MUST be the prefix of a module imported
        by the calling module.
 
-       The 'include' statement MUST NOT be used in a YANG
-       version 1 module, neither explicitly nor via a 'uses'
-       statement.
-       The 'include' statement MAY be present as a substatement
-       of 'anydata' and MUST NOT be present elsewhere.
+       The 'embed' statement MUST NOT be used in a YANG version 1
+       module, neither explicitly nor via a 'uses' statement.
 
-       Whenever a sequence of 'include' statements is used, the
-       schema tree defined by the set of the included modules is
-       inserted in the schema tree of the calling module, at the
-       place where the sequence is declared";
+       The 'embed' statement MAY be present as a substatement of
+       'anydata' and MUST NOT be present elsewhere.
+
+       Whenever a sequence of 'embed' statements is used, the schema
+       tree defined by the set of the included modules is inserted
+       in the schema tree of the calling module, at the place where
+       the sequence is declared";
   }
 }
