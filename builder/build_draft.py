@@ -66,7 +66,7 @@ def _format_json(filename):
 
 
 #EXT_TX_ID = _find_yang_file("ietf-external-transaction-id")
-FULL_INCLUDE_YANG = _find_yang_file("ietf-yang-full-include")
+FULL_INCLUDE_YANG = _find_yang_file("ietf-yang-full-embed")
 DEVICE_LEVEL_YANG = _find_yang_file("device-level")
 NETWORK_LEVEL_STUB_YANG = _find_yang_file("network-level-stub")
 NETWORK_LEVEL_YANG = _find_yang_file("network-level")

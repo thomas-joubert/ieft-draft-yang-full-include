@@ -5,17 +5,23 @@
      <module>
        <name>ietf-datastores</name>
        <revision>2018-02-14</revision>
-       <namespace>urn:ietf:params:xml:ns:yang:ietf-datastores</namespace>
+       <namespace>
+           urn:ietf:params:xml:ns:yang:ietf-datastores
+       </namespace>
      </module>
      <module>
        <name>ietf-yang-library</name>
        <revision>2019-01-04</revision>
-       <namespace>urn:ietf:params:xml:ns:yang:ietf-yang-library</namespace>
+       <namespace>
+           urn:ietf:params:xml:ns:yang:ietf-yang-library
+       </namespace>
      </module>
      <module>
        <name>ietf-yang-schema-mount</name>
        <revision>2019-01-14</revision>
-       <namespace>urn:ietf:params:xml:ns:yang:ietf-yang-schema-mount</namespace>
+       <namespace>
+           urn:ietf:params:xml:ns:yang:ietf-yang-schema-mount
+       </namespace>
      </module>
      <module>
        <name>network-level</name>
@@ -24,12 +30,16 @@
      <import-only-module>
        <name>ietf-yang-types</name>
        <revision>2013-07-15</revision>
-       <namespace>urn:ietf:params:xml:ns:yang:ietf-yang-types</namespace>
+       <namespace>
+           urn:ietf:params:xml:ns:yang:ietf-yang-types
+       </namespace>
      </import-only-module>
      <import-only-module>
        <name>ietf-inet-types</name>
        <revision>2013-07-15</revision>
-       <namespace>urn:ietf:params:xml:ns:yang:ietf-inet-types</namespace>
+       <namespace>
+           urn:ietf:params:xml:ns:yang:ietf-inet-types
+       </namespace>
      </import-only-module>
    </module-set>
    <schema>
@@ -46,6 +56,7 @@
    </datastore>
    <content-id>1</content-id>
  </yang-library>
- <modules-state xmlns="urn:ietf:params:xml:ns:yang:ietf-yang-library">
+ <modules-state
+   xmlns="urn:ietf:params:xml:ns:yang:ietf-yang-library">
    <module-set-id>2</module-set-id>
  </modules-state>

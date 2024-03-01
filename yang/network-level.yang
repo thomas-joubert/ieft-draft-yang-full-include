@@ -17,7 +17,9 @@ module network-level {
       leaf device-id {
         type string;
       }
-      full:include "dev-l";
+      anydata device-content {
+           full:include "dev-l";
+      }
     }
   }
 }

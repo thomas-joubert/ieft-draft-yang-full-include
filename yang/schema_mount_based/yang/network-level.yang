@@ -13,7 +13,9 @@ module network-level {
       leaf device-id {
         type string;
       }
-      yangmnt:mount-point "device-schema";
+      container device-contents{
+        yangmnt:mount-point "device-schema";
+      }
     }
   }
 }
