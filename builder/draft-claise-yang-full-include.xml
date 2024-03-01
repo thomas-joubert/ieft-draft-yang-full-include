@@ -8,7 +8,7 @@
 <?xml-model href="rfc7991bis.rnc"?>
 <rfc
     xmlns:xi="http://www.w3.org/2001/XInclude"
-    docName="draft-jouqui-netmod-yang-full-include-01"
+    docName="draft-jouqui-netmod-yang-full-include-{{ version }}"
     category="std"
     ipr="trust200902"
     obsoletes=""
@@ -20,7 +20,7 @@
     symRefs="true"
     version="3" >
 <front>
-    <title abbrev="YANG Full Include">YANG Full Include</title>
+    <title abbrev="YANG Full Embed">YANG Full Embed</title>
     <seriesInfo name="Internet-Draft" value="draft-jouqui-netmod-yang-full-include"/>
     <author fullname="Thomas Joubert" initials="T" surname="Joubert">
         <organization>Huawei</organization>
@@ -270,9 +270,12 @@
         <ul>
             <li>What name should we give to this draft? Any suggestions instead of full embed?</li>
             <li>Do we want to support the parent-nodes mechanism from <xref target="RFC8528"/>? (see below)</li>
-            <li>Do we allow full embed from within a grouping?</li>
+            <li>Do we allow full embed into an augment? We could even relax no self-reference to have a module embed itself into another by augmenting it?</li>
             <li>Does this mechanism already exist?</li>
-            <li>Do we want to add a partial embed with an xpath instead of just the prefix?</li>
+            <li>
+                Do we want to add a partial embed with an xpath instead of just the prefix? The goal would be to include only part of a module.
+                This complexifies a bit the validation as leaf-ref, must, when and other statement involving Xpath will need to be reinterpreted in that new context.
+            </li>
         </ul>
         <section>
             <name>Parent-nodes mechanism from schema mount</name>
@@ -387,7 +390,7 @@ container network-instances {
                 The goal is now to complete this stub so that the full contents of the 'device-level' is added under the "device" list.
             </t>
             <section>
-                <name>Example using YANG Full Include</name>
+                <name>Example using YANG Full Embed</name>
                 <t>
                     We propose in this section a YANG module for 'network-level'.
                     The YANG code is presented in <xref target="network-level-full-embed"/>.
@@ -474,7 +477,7 @@ module: network-level
         <section numbered="false">
             <name>Acknowledgements</name>
             <t>
-                Thanks to Ladislav Lhotka for his reviews and comments.
+                Thanks to Ladislav Lhotka and Ignacio Dominguez Martinez-Casanueva for their reviews and comments.
             </t>
         </section>
     </back>
