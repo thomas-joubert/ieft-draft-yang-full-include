@@ -5,6 +5,7 @@
  * python3 and pakages listed in [requirements.txt](requirements.txt) `pip install -r requirements.txt` to install
  * xml2rfc
  * make
+ * iddiff
 
 ## Modify the draft
 
