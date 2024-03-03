@@ -2,15 +2,15 @@
 
 
 
-NETMOD                                                        T. Joubert
-Internet-Draft                                               J. Quilbeuf
-Intended status: Standards Track                               B. Claise
-Expires: 2 September 2024                                         Huawei
-                                                            1 March 2024
+NETMOD                                                       J. Quilbeuf
+Internet-Draft                                                 B. Claise
+Intended status: Standards Track                              T. Joubert
+Expires: 4 September 2024                                         Huawei
+                                                            3 March 2024
 
 
                             YANG Full Embed
-                draft-jouqui-netmod-yang-full-include-01
+                draft-quijou-netmod-yang-full-include-02
 
 Abstract
 
@@ -38,7 +38,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 2 September 2024.
+   This Internet-Draft will expire on 4 September 2024.
 
 Copyright Notice
 
@@ -53,7 +53,7 @@ Copyright Notice
 
 
 
-Joubert, et al.         Expires 2 September 2024                [Page 1]
+Quilbeuf, et al.        Expires 4 September 2024                [Page 1]
 
 Internet-Draft               YANG Full Embed                  March 2024
 
@@ -68,21 +68,21 @@ Table of Contents
    2.  Terminology . . . . . . . . . . . . . . . . . . . . . . . . .   4
    3.  Full Embed  . . . . . . . . . . . . . . . . . . . . . . . . .   4
      3.1.  Definition  . . . . . . . . . . . . . . . . . . . . . . .   5
-     3.2.  Limitations . . . . . . . . . . . . . . . . . . . . . . .   5
+     3.2.  Limitations . . . . . . . . . . . . . . . . . . . . . . .   6
      3.3.  Allowed sub-statements  . . . . . . . . . . . . . . . . .   6
    4.  ietf-full-embed YANG module . . . . . . . . . . . . . . . . .   6
-   5.  Security Considerations . . . . . . . . . . . . . . . . . . .   7
+   5.  Security Considerations . . . . . . . . . . . . . . . . . . .   8
    6.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .   8
    7.  Contributors  . . . . . . . . . . . . . . . . . . . . . . . .   8
    8.  Open issues . . . . . . . . . . . . . . . . . . . . . . . . .   8
-     8.1.  Parent-nodes mechanism from schema mount  . . . . . . . .   8
+     8.1.  Parent-nodes mechanism from schema mount  . . . . . . . .   9
    9.  References  . . . . . . . . . . . . . . . . . . . . . . . . .   9
      9.1.  Normative References  . . . . . . . . . . . . . . . . . .   9
-     9.2.  Informative References  . . . . . . . . . . . . . . . . .   9
-   Appendix A.  Changes between revisions  . . . . . . . . . . . . .  10
+     9.2.  Informative References  . . . . . . . . . . . . . . . . .  10
+   Appendix A.  Changes between revisions  . . . . . . . . . . . . .  11
    Appendix B.  Examples . . . . . . . . . . . . . . . . . . . . . .  11
      B.1.  Example using YANG Full Embed . . . . . . . . . . . . . .  12
-     B.2.  Using YANG Schema Mount . . . . . . . . . . . . . . . . .  12
+     B.2.  Using YANG Schema Mount . . . . . . . . . . . . . . . . .  13
      B.3.  Support Files . . . . . . . . . . . . . . . . . . . . . .  14
    Acknowledgements  . . . . . . . . . . . . . . . . . . . . . . . .  17
    Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  17
@@ -95,7 +95,11 @@ Table of Contents
    of data model life cycle are identified: "design time",
    "implementation time" and "run time".  Only the last two are covered.
    We focus here on the first phase of the life cycle, that is inserting
-   modules at design time.
+   modules at design time.  Our aim is to propose a feature similar to
+   those supported in other data-modelling languages, such a Protobuf
+   (https://protobuf.dev/programming-guides/proto3/#other/) or json-
+   schema (https://json-schema.org/understanding-json-schema/
+   structuring#dollarref), where one can include a schema into another.
 
    We identified some use cases that require this design time definition
    of which modules need to be included in the top-level module.  The
@@ -103,17 +107,16 @@ Table of Contents
    devices in the context of a network-level module.  Also, they both
    aim to define a model that is independent of the underlying devices.
 
-   *  The use case that triggered the creation of this document is
-      [I-D.ietf-opsawg-collected-data-manifest].  In this draft, the
-      goal is to provide a YANG model giving the context in which YANG-
 
 
-
-Joubert, et al.         Expires 2 September 2024                [Page 2]
+Quilbeuf, et al.        Expires 4 September 2024                [Page 2]
 
 Internet-Draft               YANG Full Embed                  March 2024
 
 
+   *  The use case that triggered the creation of this document is
+      [I-D.ietf-opsawg-collected-data-manifest].  In this draft, the
+      goal is to provide a YANG model giving the context in which YANG-
       push [RFC8641] data are collected so that they can be exploited a
       posteriori.  To get the full context, we need the hardware and os
       version of each device, but also the list of YANG modules
@@ -151,6 +154,22 @@ Internet-Draft               YANG Full Embed                  March 2024
    server.  Again, the contents under the local subtree cannot be
    enforced from the design time.
 
+
+
+
+
+
+
+
+
+
+
+
+Quilbeuf, et al.        Expires 4 September 2024                [Page 3]
+
+Internet-Draft               YANG Full Embed                  March 2024
+
+
    In this document, we propose a new extension, named full embed.  This
    extension enables reusing imported modules by rooting them at an
    arbitrary point of the data model.  The concept of mount point from
@@ -161,14 +180,6 @@ Internet-Draft               YANG Full Embed                  March 2024
    configuration to specify the list of mounted modules, hence the term
    full embed rather than mount.  Also, we use 'embed' not to conflict
    with the native 'include' statement in YANG [RFC7950].
-
-
-
-
-Joubert, et al.         Expires 2 September 2024                [Page 3]
-
-Internet-Draft               YANG Full Embed                  March 2024
-
 
    The obtained data model that we want to associate to our construct is
    similar to the one obtained by specifying a mount point and binding
@@ -208,6 +219,13 @@ Internet-Draft               YANG Full Embed                  March 2024
    mechanism to define this mapping directly in the YANG module that
    embeds the mounted modules.
 
+
+
+Quilbeuf, et al.        Expires 4 September 2024                [Page 4]
+
+Internet-Draft               YANG Full Embed                  March 2024
+
+
    To ensure interoperability with clients that do not support the full
    embed extension, the full embed statement can only appear within an
    anydata node.  Clients that do not support the extension will see the
@@ -218,13 +236,6 @@ Internet-Draft               YANG Full Embed                  March 2024
    In the sequel, we use "full" as the prefix for the module 'ietf-yang-
    full-embed' (see Section 4).  Thus "full:embed" refers to the
    extension 'embed' defined in that module.
-
-
-
-Joubert, et al.         Expires 2 September 2024                [Page 4]
-
-Internet-Draft               YANG Full Embed                  March 2024
-
 
 3.1.  Definition
 
@@ -260,6 +271,17 @@ Internet-Draft               YANG Full Embed                  March 2024
    An example of module using "full:embed" and its translation into a
    similar YANG Schema mount version is presented in Appendix B.
 
+
+
+
+
+
+
+Quilbeuf, et al.        Expires 4 September 2024                [Page 5]
+
+Internet-Draft               YANG Full Embed                  March 2024
+
+
 3.2.  Limitations
 
    A module MUST NOT use the "full:embed" statement with its own prefix
@@ -274,13 +296,6 @@ Internet-Draft               YANG Full Embed                  March 2024
    dependency loop.  If a server supports a module both at top-level and
    embedded in another module, the corresponding data instances are
    disjoint.
-
-
-
-Joubert, et al.         Expires 2 September 2024                [Page 5]
-
-Internet-Draft               YANG Full Embed                  March 2024
-
 
    Activation of the features for the embedded module follows the same
    rules as for normal module.  Therefore it’s not possible to activate
@@ -310,6 +325,19 @@ Internet-Draft               YANG Full Embed                  March 2024
    'full', so that the statement reads "full:embed" when used in the
    code.
 
+
+
+
+
+
+
+
+
+Quilbeuf, et al.        Expires 4 September 2024                [Page 6]
+
+Internet-Draft               YANG Full Embed                  March 2024
+
+
    <CODE BEGINS> file "ietf-full-embed@2023-11-03.yang"
    module ietf-yang-full-embed {
      yang-version 1.1;
@@ -330,14 +358,6 @@ Internet-Draft               YANG Full Embed                  March 2024
 
         The key words 'MUST', 'MUST NOT', 'REQUIRED', 'SHALL', 'SHALL
         NOT', 'SHOULD', 'SHOULD NOT', 'RECOMMENDED', 'NOT RECOMMENDED',
-
-
-
-Joubert, et al.         Expires 2 September 2024                [Page 6]
-
-Internet-Draft               YANG Full Embed                  March 2024
-
-
         'MAY', and 'OPTIONAL' in this document are to be interpreted as
         described in BCP 14 (RFC 2119) (RFC 8174) when, and only when,
         they appear in all capitals, as shown here.
@@ -366,6 +386,14 @@ Internet-Draft               YANG Full Embed                  March 2024
        argument prefix;
        description
          "The argument 'prefix' MUST be the prefix of a module imported
+
+
+
+Quilbeuf, et al.        Expires 4 September 2024                [Page 7]
+
+Internet-Draft               YANG Full Embed                  March 2024
+
+
           by the calling module.
 
           The 'embed' statement MUST NOT be used in a YANG version 1
@@ -385,14 +413,6 @@ Internet-Draft               YANG Full Embed                  March 2024
 5.  Security Considerations
 
    TODO
-
-
-
-
-Joubert, et al.         Expires 2 September 2024                [Page 7]
-
-Internet-Draft               YANG Full Embed                  March 2024
-
 
 6.  IANA Considerations
 
@@ -420,6 +440,16 @@ Internet-Draft               YANG Full Embed                  March 2024
       other statement involving Xpath will need to be reinterpreted in
       that new context.
 
+
+
+
+
+
+Quilbeuf, et al.        Expires 4 September 2024                [Page 8]
+
+Internet-Draft               YANG Full Embed                  March 2024
+
+
 8.1.  Parent-nodes mechanism from schema mount
 
    YANG Schema Mount includes a mechanism to make some nodes from the
@@ -436,19 +466,6 @@ Internet-Draft               YANG Full Embed                  March 2024
    [RFC8528] using this new extension.  We might want to put some
    restrictions on the nodes that can be referred to in the Xpath
    argument.
-
-
-
-
-
-
-
-
-
-Joubert, et al.         Expires 2 September 2024                [Page 8]
-
-Internet-Draft               YANG Full Embed                  March 2024
-
 
    ...
    import "ietf-routing" {
@@ -479,6 +496,16 @@ Internet-Draft               YANG Full Embed                  March 2024
 
 9.1.  Normative References
 
+
+
+
+
+
+Quilbeuf, et al.        Expires 4 September 2024                [Page 9]
+
+Internet-Draft               YANG Full Embed                  March 2024
+
+
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
               DOI 10.17487/RFC2119, March 1997,
@@ -497,14 +524,6 @@ Internet-Draft               YANG Full Embed                  March 2024
               <https://www.rfc-editor.org/info/rfc8528>.
 
 9.2.  Informative References
-
-
-
-
-Joubert, et al.         Expires 2 September 2024                [Page 9]
-
-Internet-Draft               YANG Full Embed                  March 2024
-
 
    [I-D.clemm-netmod-peermount]
               Clemm, A., Voit, E., Guo, A., and I. D. Martinez-
@@ -536,6 +555,13 @@ Internet-Draft               YANG Full Embed                  March 2024
               (NETCONF)", RFC 6241, DOI 10.17487/RFC6241, June 2011,
               <https://www.rfc-editor.org/info/rfc6241>.
 
+
+
+Quilbeuf, et al.        Expires 4 September 2024               [Page 10]
+
+Internet-Draft               YANG Full Embed                  March 2024
+
+
    [RFC8340]  Bjorklund, M. and L. Berger, Ed., "YANG Tree Diagrams",
               BCP 215, RFC 8340, DOI 10.17487/RFC8340, March 2018,
               <https://www.rfc-editor.org/info/rfc8340>.
@@ -554,13 +580,6 @@ Appendix A.  Changes between revisions
    00 -> 01
 
    *  Renamed full include -> full embed
-
-
-
-Joubert, et al.         Expires 2 September 2024               [Page 10]
-
-Internet-Draft               YANG Full Embed                  March 2024
-
 
    *  Require extension to appear in anydata for clients not supporting
       extension
@@ -591,6 +610,14 @@ Appendix B.  Examples
      +--rw hostname     string
      +--ro cpu-usage?   int8
 
+
+
+
+Quilbeuf, et al.        Expires 4 September 2024               [Page 11]
+
+Internet-Draft               YANG Full Embed                  March 2024
+
+
        Figure 2: YANG Tree representation of the device-level module.
 
    For the network-level module, we have a list of devices indexed by
@@ -608,42 +635,21 @@ Appendix B.  Examples
    The goal is now to complete this stub so that the full contents of
    the 'device-level' is added under the "device" list.
 
-
-
-
-
-
-Joubert, et al.         Expires 2 September 2024               [Page 11]
-
-Internet-Draft               YANG Full Embed                  March 2024
-
-
 B.1.  Example using YANG Full Embed
 
    We propose in this section a YANG module for 'network-level'.  The
    YANG code is presented in Figure 4.
 
-   module network-level {
+   module network-level-stub {
      yang-version 1.1;
      namespace "urn:network-level";
-     prefix "net-l";
-
-     import "ietf-yang-full-include" {
-       prefix "full";
-     }
-
-     import "device-level" {
-       prefix "dev-l";
-     }
+     prefix "mntr";
 
      container devices {
        list device {
          key device-id;
          leaf device-id {
            type string;
-         }
-         anydata device-content {
-              full:include "dev-l";
          }
        }
      }
@@ -660,19 +666,19 @@ B.1.  Example using YANG Full Embed
    By adding more occurrences of "full:embed" there, one can define a
    more complex schema to be embedded at that location.
 
+
+
+
+Quilbeuf, et al.        Expires 4 September 2024               [Page 12]
+
+Internet-Draft               YANG Full Embed                  March 2024
+
+
 B.2.  Using YANG Schema Mount
 
    In this section, we show how a similar result could be attained using
    YANG Schema Mount.  The network-level module is presented in
    Figure 5.
-
-
-
-
-Joubert, et al.         Expires 2 September 2024               [Page 12]
-
-Internet-Draft               YANG Full Embed                  March 2024
-
 
    module network-level {
      yang-version 1.1;
@@ -719,13 +725,7 @@ Internet-Draft               YANG Full Embed                  March 2024
 
 
 
-
-
-
-
-
-
-Joubert, et al.         Expires 2 September 2024               [Page 13]
+Quilbeuf, et al.        Expires 4 September 2024               [Page 13]
 
 Internet-Draft               YANG Full Embed                  March 2024
 
@@ -781,7 +781,7 @@ B.3.  Support Files
 
 
 
-Joubert, et al.         Expires 2 September 2024               [Page 14]
+Quilbeuf, et al.        Expires 4 September 2024               [Page 14]
 
 Internet-Draft               YANG Full Embed                  March 2024
 
@@ -837,7 +837,7 @@ Internet-Draft               YANG Full Embed                  March 2024
 
 
 
-Joubert, et al.         Expires 2 September 2024               [Page 15]
+Quilbeuf, et al.        Expires 4 September 2024               [Page 15]
 
 Internet-Draft               YANG Full Embed                  March 2024
 
@@ -893,7 +893,7 @@ Internet-Draft               YANG Full Embed                  March 2024
 
 
 
-Joubert, et al.         Expires 2 September 2024               [Page 16]
+Quilbeuf, et al.        Expires 4 September 2024               [Page 16]
 
 Internet-Draft               YANG Full Embed                  March 2024
 
@@ -925,11 +925,6 @@ Acknowledgements
 
 Authors' Addresses
 
-   Thomas Joubert
-   Huawei
-   Email: thomas.joubert1@huawei-partners.com
-
-
    Jean Quilbeuf
    Huawei
    Email: jean.quilbeuf@huawei.com
@@ -940,6 +935,9 @@ Authors' Addresses
    Email: benoit.claise@huawei.com
 
 
+   Thomas Joubert
+   Huawei
+   Email: thomas.joubert1@huawei-partners.com
 
 
 
@@ -949,4 +947,6 @@ Authors' Addresses
 
 
 
-Joubert, et al.         Expires 2 September 2024               [Page 17]
+
+
+Quilbeuf, et al.        Expires 4 September 2024               [Page 17]

@@ -8,7 +8,7 @@
 <?xml-model href="rfc7991bis.rnc"?>
 <rfc
     xmlns:xi="http://www.w3.org/2001/XInclude"
-    docName="draft-jouqui-netmod-yang-full-include-{{ version }}"
+    docName="draft-quijou-netmod-yang-full-include-{{ version }}"
     category="std"
     ipr="trust200902"
     obsoletes=""
@@ -21,13 +21,7 @@
     version="3" >
 <front>
     <title abbrev="YANG Full Embed">YANG Full Embed</title>
-    <seriesInfo name="Internet-Draft" value="draft-jouqui-netmod-yang-full-include"/>
-    <author fullname="Thomas Joubert" initials="T" surname="Joubert">
-        <organization>Huawei</organization>
-        <address>
-            <email>thomas.joubert1@huawei-partners.com</email>
-        </address>
-    </author>
+    <seriesInfo name="Internet-Draft" value="draft-quijou-netmod-yang-full-include"/>
     <author fullname="Jean Quilbeuf" initials="J" surname="Quilbeuf">
         <organization>Huawei</organization>
         <address>
@@ -38,6 +32,12 @@
         <organization>Huawei</organization>
         <address>
             <email>benoit.claise@huawei.com</email>
+        </address>
+    </author>
+    <author fullname="Thomas Joubert" initials="T" surname="Joubert">
+        <organization>Huawei</organization>
+        <address>
+            <email>thomas.joubert1@huawei-partners.com</email>
         </address>
     </author>
     <date year="{{year}}" month="{{month}}" day="{{day}}"/>
@@ -64,6 +64,8 @@
             In that RFC, three different phases of data model life cycle are identified: "design time", "implementation time" and "run time".
             Only the last two are covered.
             We focus here on the first phase of the life cycle, that is inserting modules at design time.
+            Our aim is to propose a feature similar to those supported in other data-modelling languages,
+            such a <eref target="https://protobuf.dev/programming-guides/proto3/#other/">Protobuf</eref> or <eref target="https://json-schema.org/understanding-json-schema/structuring#dollarref">json-schema</eref>, where one can include a schema into another.
         </t>
         <t>
             We identified some use cases that require this design time definition of which modules need to be included in the top-level module.
