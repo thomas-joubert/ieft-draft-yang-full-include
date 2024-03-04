@@ -5,12 +5,12 @@
 NETMOD                                                       J. Quilbeuf
 Internet-Draft                                                 B. Claise
 Intended status: Standards Track                              T. Joubert
-Expires: 4 September 2024                                         Huawei
-                                                            3 March 2024
+Expires: 5 September 2024                                         Huawei
+                                                            4 March 2024
 
 
                             YANG Full Embed
-                draft-quijou-netmod-yang-full-include-02
+                draft-jouqui-netmod-yang-full-include-01
 
 Abstract
 
@@ -38,7 +38,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 4 September 2024.
+   This Internet-Draft will expire on 5 September 2024.
 
 Copyright Notice
 
@@ -53,7 +53,7 @@ Copyright Notice
 
 
 
-Quilbeuf, et al.        Expires 4 September 2024                [Page 1]
+Quilbeuf, et al.        Expires 5 September 2024                [Page 1]
 
 Internet-Draft               YANG Full Embed                  March 2024
 
@@ -101,18 +101,31 @@ Table of Contents
    schema (https://json-schema.org/understanding-json-schema/
    structuring#dollarref), where one can include a schema into another.
 
+
+
+
+
+
+
+
+
+Quilbeuf, et al.        Expires 5 September 2024                [Page 2]
+
+Internet-Draft               YANG Full Embed                  March 2024
+
+
+   Our aim is to propose a feature similar to those supported in other
+   data-modelling languages, such a RELAX NG
+   (https://books.xmlschemata.org/relaxng/relax-CHP-10-SECT-1.html),
+   Protobuf (https://protobuf.dev/programming-guides/proto3/#other/) or
+   json-schema (https://json-schema.org/understanding-json-schema/
+   structuring#dollarref), where one can include a schema into another.
+
    We identified some use cases that require this design time definition
    of which modules need to be included in the top-level module.  The
    have in common the need to re-use YANG modules defined for the
    devices in the context of a network-level module.  Also, they both
    aim to define a model that is independent of the underlying devices.
-
-
-
-Quilbeuf, et al.        Expires 4 September 2024                [Page 2]
-
-Internet-Draft               YANG Full Embed                  March 2024
-
 
    *  The use case that triggered the creation of this document is
       [I-D.ietf-opsawg-collected-data-manifest].  In this draft, the
@@ -149,26 +162,18 @@ Internet-Draft               YANG Full Embed                  March 2024
    that mount point is left to the NETCONF [RFC6241] server.  Thus, to
    guarantee that the contents under a given mount point conforms to a
    predefined schema requires the proper configuration of the server.
+
+
+
+Quilbeuf, et al.        Expires 5 September 2024                [Page 3]
+
+Internet-Draft               YANG Full Embed                  March 2024
+
+
    In the case of Peer mount, the focus is on synchronizing a given
    subtree of a server (remote or local) with a subtree of the local
    server.  Again, the contents under the local subtree cannot be
    enforced from the design time.
-
-
-
-
-
-
-
-
-
-
-
-
-Quilbeuf, et al.        Expires 4 September 2024                [Page 3]
-
-Internet-Draft               YANG Full Embed                  March 2024
-
 
    In this document, we propose a new extension, named full embed.  This
    extension enables reusing imported modules by rooting them at an
@@ -212,19 +217,21 @@ Internet-Draft               YANG Full Embed                  March 2024
    time.  Supporting mounting modules at this step of the data model
    life cycle is left out of scope in [RFC8528].
 
+
+
+
+
+Quilbeuf, et al.        Expires 5 September 2024                [Page 4]
+
+Internet-Draft               YANG Full Embed                  March 2024
+
+
    The approach for supporting the full embed mechanism is to keep the
    semantics of [RFC8528] for the resulting data model.  In [RFC8528],
    the list of modules to mount in each mount point is left to the
    NETCONF server.  In this document, we propose the full embed
    mechanism to define this mapping directly in the YANG module that
    embeds the mounted modules.
-
-
-
-Quilbeuf, et al.        Expires 4 September 2024                [Page 4]
-
-Internet-Draft               YANG Full Embed                  March 2024
-
 
    To ensure interoperability with clients that do not support the full
    embed extension, the full embed statement can only appear within an
@@ -268,19 +275,15 @@ Internet-Draft               YANG Full Embed                  March 2024
        list 'imported-modules' contains the list of dependencies needed
        by the modules in the 'module' list.
 
-   An example of module using "full:embed" and its translation into a
-   similar YANG Schema mount version is presented in Appendix B.
 
 
-
-
-
-
-
-Quilbeuf, et al.        Expires 4 September 2024                [Page 5]
+Quilbeuf, et al.        Expires 5 September 2024                [Page 5]
 
 Internet-Draft               YANG Full Embed                  March 2024
 
+
+   An example of module using "full:embed" and its translation into a
+   similar YANG Schema mount version is presented in Appendix B.
 
 3.2.  Limitations
 
@@ -330,10 +333,7 @@ Internet-Draft               YANG Full Embed                  March 2024
 
 
 
-
-
-
-Quilbeuf, et al.        Expires 4 September 2024                [Page 6]
+Quilbeuf, et al.        Expires 5 September 2024                [Page 6]
 
 Internet-Draft               YANG Full Embed                  March 2024
 
@@ -389,7 +389,7 @@ Internet-Draft               YANG Full Embed                  March 2024
 
 
 
-Quilbeuf, et al.        Expires 4 September 2024                [Page 7]
+Quilbeuf, et al.        Expires 5 September 2024                [Page 7]
 
 Internet-Draft               YANG Full Embed                  March 2024
 
@@ -445,7 +445,7 @@ Internet-Draft               YANG Full Embed                  March 2024
 
 
 
-Quilbeuf, et al.        Expires 4 September 2024                [Page 8]
+Quilbeuf, et al.        Expires 5 September 2024                [Page 8]
 
 Internet-Draft               YANG Full Embed                  March 2024
 
@@ -501,7 +501,7 @@ Internet-Draft               YANG Full Embed                  March 2024
 
 
 
-Quilbeuf, et al.        Expires 4 September 2024                [Page 9]
+Quilbeuf, et al.        Expires 5 September 2024                [Page 9]
 
 Internet-Draft               YANG Full Embed                  March 2024
 
@@ -543,12 +543,12 @@ Internet-Draft               YANG Full Embed                  March 2024
               digital-map-01>.
 
    [I-D.ietf-opsawg-collected-data-manifest]
-              Claise, B., Quilbeuf, J., Lopez, D., Martinez-Casanueva,
-              I. D., and T. Graf, "A Data Manifest for Contextualized
-              Telemetry Data", Work in Progress, Internet-Draft, draft-
-              ietf-opsawg-collected-data-manifest-02, 23 October 2023,
-              <https://datatracker.ietf.org/doc/html/draft-ietf-opsawg-
-              collected-data-manifest-02>.
+              Claise, B., Quilbeuf, J., Lopez, D. R., Dominguez, I., and
+              T. Graf, "A Data Manifest for Contextualized Telemetry
+              Data", Work in Progress, Internet-Draft, draft-ietf-
+              opsawg-collected-data-manifest-03, 4 March 2024,
+              <https://datatracker.ietf.org/api/v1/doc/document/draft-
+              ietf-opsawg-collected-data-manifest/>.
 
    [RFC6241]  Enns, R., Ed., Bjorklund, M., Ed., Schoenwaelder, J., Ed.,
               and A. Bierman, Ed., "Network Configuration Protocol
@@ -557,7 +557,7 @@ Internet-Draft               YANG Full Embed                  March 2024
 
 
 
-Quilbeuf, et al.        Expires 4 September 2024               [Page 10]
+Quilbeuf, et al.        Expires 5 September 2024               [Page 10]
 
 Internet-Draft               YANG Full Embed                  March 2024
 
@@ -613,7 +613,7 @@ Appendix B.  Examples
 
 
 
-Quilbeuf, et al.        Expires 4 September 2024               [Page 11]
+Quilbeuf, et al.        Expires 5 September 2024               [Page 11]
 
 Internet-Draft               YANG Full Embed                  March 2024
 
@@ -640,10 +640,18 @@ B.1.  Example using YANG Full Embed
    We propose in this section a YANG module for 'network-level'.  The
    YANG code is presented in Figure 4.
 
-   module network-level-stub {
+   module network-level {
      yang-version 1.1;
      namespace "urn:network-level";
-     prefix "mntr";
+     prefix "net-l";
+
+     import "ietf-yang-full-include" {
+       prefix "full";
+     }
+
+     import "device-level" {
+       prefix "dev-l";
+     }
 
      container devices {
        list device {
@@ -651,9 +659,20 @@ B.1.  Example using YANG Full Embed
          leaf device-id {
            type string;
          }
+         anydata device-content {
+              full:include "dev-l";
+         }
        }
      }
    }
+
+
+
+
+Quilbeuf, et al.        Expires 5 September 2024               [Page 12]
+
+Internet-Draft               YANG Full Embed                  March 2024
+
 
        Figure 4: Version of the network-level module using full:embed
 
@@ -665,14 +684,6 @@ B.1.  Example using YANG Full Embed
    identified by its prefix "dev-l" must be embedded at that location.
    By adding more occurrences of "full:embed" there, one can define a
    more complex schema to be embedded at that location.
-
-
-
-
-Quilbeuf, et al.        Expires 4 September 2024               [Page 12]
-
-Internet-Draft               YANG Full Embed                  March 2024
-
 
 B.2.  Using YANG Schema Mount
 
@@ -710,6 +721,15 @@ B.2.  Using YANG Schema Mount
    from libyang (https://github.com/CESNET/libyang), this module can be
    compiled to provide a tree representation as shown in Figure 6.
 
+
+
+
+
+Quilbeuf, et al.        Expires 5 September 2024               [Page 13]
+
+Internet-Draft               YANG Full Embed                  March 2024
+
+
    module: network-level
      +--rw devices
         +--rw device* [device-id]
@@ -720,15 +740,6 @@ B.2.  Using YANG Schema Mount
 
         Figure 6: Full tree of both network- and device-level using
                                 Schema Mount
-
-
-
-
-
-Quilbeuf, et al.        Expires 4 September 2024               [Page 13]
-
-Internet-Draft               YANG Full Embed                  March 2024
-
 
    The command for obtaining that schema is 'yanglint -f tree -p . -x
    extension-data.xml -Y network-level-yanglib.xml yang/network-
@@ -763,6 +774,18 @@ B.3.  Support Files
 
                      Figure 7: device-level YANG module
 
+
+
+
+
+
+
+
+Quilbeuf, et al.        Expires 5 September 2024               [Page 14]
+
+Internet-Draft               YANG Full Embed                  March 2024
+
+
    <CODE BEGINS> file "network-level-yanglib.xml"
    <yang-library xmlns="urn:ietf:params:xml:ns:yang:ietf-yang-library"
         xmlns:ds="urn:ietf:params:xml:ns:yang:ietf-datastores">
@@ -778,14 +801,6 @@ B.3.  Support Files
         <module>
           <name>ietf-yang-library</name>
           <revision>2019-01-04</revision>
-
-
-
-Quilbeuf, et al.        Expires 4 September 2024               [Page 14]
-
-Internet-Draft               YANG Full Embed                  March 2024
-
-
           <namespace>
               urn:ietf:params:xml:ns:yang:ietf-yang-library
           </namespace>
@@ -819,6 +834,14 @@ Internet-Draft               YANG Full Embed                  March 2024
       <schema>
         <name>main-schema</name>
         <module-set>main-set</module-set>
+
+
+
+Quilbeuf, et al.        Expires 5 September 2024               [Page 15]
+
+Internet-Draft               YANG Full Embed                  March 2024
+
+
       </schema>
       <datastore>
         <name>ds:running</name>
@@ -834,14 +857,6 @@ Internet-Draft               YANG Full Embed                  March 2024
       xmlns="urn:ietf:params:xml:ns:yang:ietf-yang-library">
       <module-set-id>2</module-set-id>
     </modules-state>
-
-
-
-Quilbeuf, et al.        Expires 4 September 2024               [Page 15]
-
-Internet-Draft               YANG Full Embed                  March 2024
-
-
    <CODE ENDS>
 
    <CODE BEGINS> file "extension_data.xml"
@@ -875,6 +890,14 @@ Internet-Draft               YANG Full Embed                  March 2024
                </namespace>
            </import-only-module>
            <import-only-module>
+
+
+
+Quilbeuf, et al.        Expires 5 September 2024               [Page 16]
+
+Internet-Draft               YANG Full Embed                  March 2024
+
+
                <name>ietf-inet-types</name>
                <revision>2013-07-15</revision>
                <namespace>
@@ -890,14 +913,6 @@ Internet-Draft               YANG Full Embed                  March 2024
            <name>ds:running</name>
            <schema>test-schema</schema>
        </datastore>
-
-
-
-Quilbeuf, et al.        Expires 4 September 2024               [Page 16]
-
-Internet-Draft               YANG Full Embed                  March 2024
-
-
        <datastore>
            <name>ds:operational</name>
            <schema>test-schema</schema>
@@ -930,6 +945,15 @@ Authors' Addresses
    Email: jean.quilbeuf@huawei.com
 
 
+
+
+
+
+Quilbeuf, et al.        Expires 5 September 2024               [Page 17]
+
+Internet-Draft               YANG Full Embed                  March 2024
+
+
    Benoit Claise
    Huawei
    Email: benoit.claise@huawei.com
@@ -949,4 +973,36 @@ Authors' Addresses
 
 
 
-Quilbeuf, et al.        Expires 4 September 2024               [Page 17]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Quilbeuf, et al.        Expires 5 September 2024               [Page 18]
