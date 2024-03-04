@@ -64,12 +64,6 @@
             In that RFC, three different phases of data model life cycle are identified: "design time", "implementation time" and "run time".
             Only the last two are covered.
             We focus here on the first phase of the life cycle, that is inserting modules at design time.
-            Our aim is to propose a feature similar to those supported in other data-modelling languages,
-            such a <eref target="https://protobuf.dev/programming-guides/proto3/#other/">Protobuf</eref> or <eref target="https://json-schema.org/understanding-json-schema/structuring#dollarref">json-schema</eref>, where one can include a schema into another.
-        </t>
-	<t>
-            Our aim is to propose a feature similar to those supported in other data-modelling languages,
-		such a <eref target="https://books.xmlschemata.org/relaxng/relax-CHP-10-SECT-1.html">RELAX NG</eref>, <eref target="https://protobuf.dev/programming-guides/proto3/#other/">Protobuf</eref> or <eref target="https://json-schema.org/understanding-json-schema/structuring#dollarref">json-schema</eref>, where one can include a schema into another.
         </t>
         <t>
             We identified some use cases that require this design time definition of which modules need to be included in the top-level module.
@@ -98,6 +92,11 @@
             Thus, to guarantee that the contents under a given mount point conforms to a predefined schema requires the proper configuration of the server.
             In the case of Peer mount, the focus is on synchronizing a given subtree of a server (remote or local) with a subtree of the local server.
             Again, the contents under the local subtree cannot be enforced from the design time.
+        </t>
+        <t>
+            The notion of reusing an existing schema within a new schema is not new.
+            Several schema definition languages propose this feature, such as
+            <eref target="https://books.xmlschemata.org/relaxng/relax-CHP-10-SECT-1.html">RELAX NG</eref>, <eref target="https://protobuf.dev/programming-guides/proto3/#other/">Protobuf</eref> or <eref target="https://json-schema.org/understanding-json-schema/structuring#dollarref">json-schema</eref>.
         </t>
         <t>
             In this document, we propose a new extension, named full embed.

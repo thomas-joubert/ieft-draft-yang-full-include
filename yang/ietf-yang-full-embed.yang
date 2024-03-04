@@ -41,7 +41,7 @@ module ietf-yang-full-embed {
     description
       "Initial revision.";
     reference
-      "RFC XXXX: YANG Full Include";
+      "RFC XXXX: YANG Full Embed";
   }
 
   extension embed {
