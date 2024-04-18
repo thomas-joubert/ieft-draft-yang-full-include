@@ -1,0 +1,737 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE rfc [
+<!ENTITY nbsp    "&#160;">
+<!ENTITY zwsp   "&#8203;">
+<!ENTITY nbhy   "&#8209;">
+<!ENTITY wj     "&#8288;">
+]>
+<?xml-model href="rfc7991bis.rnc"?>
+<rfc
+    xmlns:xi="http://www.w3.org/2001/XInclude"
+    docName="draft-jouqui-netmod-yang-full-include-02"
+    category="std"
+    ipr="trust200902"
+    obsoletes=""
+    updates=""
+    submissionType="IETF"
+    xml:lang="en"
+    tocInclude="true"
+    sortRefs="true"
+    symRefs="true"
+    version="3" >
+<front>
+    <title abbrev="YANG Full Embed">YANG Full Embed</title>
+    <seriesInfo name="Internet-Draft" value="draft-jouqui-netmod-yang-full-include"/>
+    <author fullname="Jean Quilbeuf" initials="J" surname="Quilbeuf">
+        <organization>Huawei</organization>
+        <address>
+            <email>jean.quilbeuf@huawei.com</email>
+        </address>
+    </author>
+    <author fullname="Benoit Claise" initials="B" surname="Claise">
+        <organization>Huawei</organization>
+        <address>
+            <email>benoit.claise@huawei.com</email>
+        </address>
+    </author>
+    <author fullname="Thomas Joubert" initials="T" surname="Joubert">
+        <organization>Huawei</organization>
+        <address>
+            <email>thomas.joubert1@huawei-partners.com</email>
+        </address>
+    </author>
+    <date year="2024" month="4" day="18"/>
+    <area>General</area>
+    <workgroup>NETMOD</workgroup>
+    <abstract>
+        <t>
+            YANG lacks re-usability of models defined outside of the grouping
+            and augmentation mechanisms. For instance, it is almost impossible
+            to reuse a model defined for a device in the context of the
+            network, i.e by encapsulating it in a list indexed by device IDs.
+            <xref target="RFC8528"/> defines the YANG mount mechanism, partially solving the
+            problem by allowing to mount an arbitrary set of schemas at an arbitrary point.
+            However, YANG mount is only focusing on deploy or runtime. This
+            document aims to provide the same mechanism at design time.
+        </t>
+    </abstract>
+</front>
+<middle>
+    <section anchor="intro" >
+        <name>Introduction</name>
+        <t>
+            <xref target="RFC8528"/> introduces the challenges of reusing existing YANG modules, especially when including the full subtree of YANG module under a specific node of another module.
+            In that RFC, three different phases of data model life cycle are identified: "design time", "implementation time" and "run time".
+            Only the last two are covered.
+            We focus here on the first phase of the life cycle, that is inserting modules at design time.
+        </t>
+        <t>
+            We identified some use cases that require this design time definition of which modules need to be included in the top-level module.
+            The have in common the need to re-use YANG modules defined for the devices in the context of a network-level module.
+            Also, they both aim to define a model that is independent of the underlying devices.
+        </t>
+        <ul>
+            <li>
+                The use case that triggered the creation of this document is <xref target="I-D.ietf-opsawg-collected-data-manifest"/>.
+                In this draft, the goal is to provide a YANG model giving the context in which YANG-push <xref target="RFC8641"/> data are collected so that they can be exploited a posteriori.
+                To get the full context, we need the hardware and os version of each device, but also the list of YANG modules supported by the devices and the parameters for the YANG-push subscriptions.
+                For the last two items YANG Library <xref target="RFC8525"/> and YANG Push <xref target="RFC8641"/> provide good and standard modules for representing this information at the device level.
+                However, the data manifests need to be considered at the network level, so that we can distinguish between the devices from which they come.
+                In YANG, that means including them in a list indexed by the device id, which proves out to be difficult without copy-pasting the original modules.
+            </li>
+            <li>
+                A similar use case is the digital map <xref target="I-D.havel-opsawg-digital-map"/>, where the goal is to build a model of the network.
+                In particular, to model the devices a lot of standard modules have already been defined by the IETF and there is a need to reuse these modules to build this larger network model.
+                The <eref target="https://datatracker.ietf.org/wg/ivy/about/">IVY workgroup</eref> might also rely on the pattern of re-using device level modules into a network model.
+            </li>
+        </ul>
+        <t>
+            YANG Schema Mount <xref target="RFC8528"/> and Peer Mount <xref target="I-D.clemm-netmod-peermount"/> focus on mounting a given part of a an existing data instance into another data instance.
+            Although the final goal is the same: being able to reuse modules defined elsewhere in order to avoid redefining them, the approach is more focused on the runtime than the design time.
+            In the first case, the mapping between the mount points and the existing modules to be mounted at that mount point is left to the NETCONF <xref target="RFC6241"/> server.
+            Thus, to guarantee that the contents under a given mount point conforms to a predefined schema requires the proper configuration of the server.
+            In the case of Peer mount, the focus is on synchronizing a given subtree of a server (remote or local) with a subtree of the local server.
+            Again, the contents under the local subtree cannot be enforced from the design time.
+        </t>
+        <t>
+            The notion of reusing an existing schema within a new schema is not new.
+            Several schema definition languages propose this feature, such as
+            <eref target="https://books.xmlschemata.org/relaxng/relax-CHP-10-SECT-1.html">RELAX NG</eref>, <eref target="https://protobuf.dev/programming-guides/proto3/#other/">Protobuf</eref> or <eref target="https://json-schema.org/understanding-json-schema/structuring#dollarref">json-schema</eref>.
+        </t>
+        <t>
+            In this document, we propose a new extension, named full embed.
+            This extension enables reusing imported modules by rooting them at an arbitrary point of the data model.
+            The concept of mount point from <xref target="RFC8528"/> is replaced by an anydata statement containing list of "full:embed" statement, each statement corresponding to the inclusion of one imported module at that location.
+            In that sense, the design time solution is a pure YANG solution that does not rely on external configuration to specify the list of mounted modules, hence the term full embed rather than mount.
+            Also, we use 'embed' not to conflict with the native 'include' statement in YANG <xref target="RFC7950"/>.
+        </t>
+        <t>
+            The obtained data model that we want to associate to our construct is similar to the one obtained by specifying a mount point and binding it to the same set of modules.
+            Therefore, we can reuse the concepts of the YANG schema mount to define the semantics of our new extension.
+        </t>
+    </section>
+    <section anchor="terminology">
+        <name>Terminology</name>
+        <t>
+            The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL
+            NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED",
+            "MAY", and "OPTIONAL" in this document are to be interpreted as
+            described in BCP 14 <xref target="RFC2119"/> <xref target="RFC8174"/>
+            when, and only when, they appear in all capitals, as shown here.
+        </t>
+        <t>
+            The following terms are defined in <xref target="RFC7950"/>:
+        </t>
+        <ul>
+            <li>data model</li>
+            <li>data node</li>
+        </ul>
+        <t>
+            The following terms are defined in <xref target="RFC8528"/>:
+        </t>
+        <ul>
+            <li>mount point</li>
+        </ul>
+    </section>
+    <section anchor="yang-full-embed">
+        <name>Full Embed</name>
+        <t>
+            The full embed mechanism defined in this document completes <xref target="RFC8528"/>, by providing a mechanism to "mount" modules at design time.
+            Supporting mounting modules at this step of the data model life cycle is left out of scope in <xref target="RFC8528"/>.
+        </t>
+        <t>
+            The approach for supporting the full embed mechanism is to keep the semantics of <xref target="RFC8528"/> for the resulting data model.
+            In <xref target="RFC8528"/>, the list of modules to mount in each mount point is left to the NETCONF server.
+            In this document, we propose the full embed mechanism to define this mapping directly in the YANG module that embeds the mounted modules.
+        </t>
+		<t>
+			To ensure interoperability with clients that do not support the full embed extension, the full embed statement can only appear within an anydata node.
+			Clients that do not support the extension will see the contents of the embedded model as arbitrary data.
+			Clients that support the extension will be able to interpret the contents of the anydata node according to the semantics of the embedded YANG modules.
+		</t>
+        <t>
+            In the sequel, we use "full" as the prefix for the module 'ietf-yang-full-embed' (see <xref target="yang-module-code"/>).
+            Thus "full:embed" refers to the extension 'embed' defined in that module.
+        </t>
+        <section anchor="yang-full-embed-def">
+            <name>Definition</name>
+            <t>
+                The "full:embed" statement can appear as a sub-statement of anydata.
+            </t>
+            <t>
+                The "full:embed" statement takes as an argument a prefix, that must be the prefix associated to an imported module. Modules can contain
+                multiple uses of the "full:embed" statement. An "anydata" statement MAY contain multiple uses of the "full:embed" statement.
+                These multiple uses define the full list of modules to be embedded, rooted in the anydata node where the "full:embed" statement is used.
+            </t>
+            <t>
+                The "full:embed" statement can be interpreted using YANG Schema Mount <xref target="RFC8528"/>, by following these steps:
+            </t>
+            <ol>
+                <li>For each anydata node containing a set of "full:embed" statement, replace them by a container containing single "mount-point" with a unique label.</li>
+                <li>Declare each of these "mount-points" as "shared-schema" in the data model defined in <xref target="RFC8528"/>.</li>
+                <li>
+                    In the instance corresponding to each "mount-point", define the ietf-yang-library <xref target="RFC8525"/> to include a module-set (at '/yang-library/module-set/) with the following.
+                    The list 'module' contains an entry for every module referred to in the set of "full:embed" statements corresponding to the "mount-point".
+                    Additionally, the list 'module' contains an entry for "ietf-yang-library" as it is needed by YANG Schema mount.
+                    As usual, the list 'imported-modules' contains the list of dependencies needed by the modules in the 'module' list.
+                </li>
+            </ol>
+            <t>An example of module using "full:embed" and its translation into a similar YANG Schema mount version is presented in <xref target="examples"/>.</t>
+        </section>
+        <section>
+            <name>Limitations</name>
+            <t>
+                A module MUST NOT use the "full:embed" statement with its own prefix as argument. This rule prevents any infinite recursion in the mounted schemas.
+            </t>
+            <t>
+                As for YANG Schema Mount, the set of embedded modules is an independent YANG context, where every reference (for instance leaf-ref, augment, when) is contained in that context.
+                It is not possible for an embedded module to refer to the embedding module, which would be rejected by the compiler anyway because it would create a dependency loop.
+                If a server supports a module both at top-level and embedded in another module, the corresponding data instances are disjoint.
+            </t>
+            <t>
+                Activation of the features for the embedded module follows the same rules as for normal module.
+                Therefore it’s not possible to activate some features for some embedded modules only.
+                The feature is either supported by the server and then activated for every module (embedded or not) or not supported and then deactivated for all modules (embedded or not).
+            </t>
+        </section>
+        <section>
+            <name>Allowed sub-statements</name>
+            <t>
+                The following sub-statements are allowed in the "full:embed" statement:
+            </t>
+            <ul>
+                <li>when</li>
+                <li>if-feature</li>
+            </ul>
+            <t>
+                Both statements have the same meaning as in <xref target="RFC7950"/>.
+                The when statement MUST NOT refer to nodes which are in the embedded module designated by the "full:embed" statement.
+            </t>
+        </section>
+    </section>
+
+    <!-- [We’re not yet there, let’s keep it simple for now]section>
+        <name>Implementation strategies</name>
+        <section>
+            <name>Re-using YANG schema mount</name>
+        </section>
+        <section>
+            <section anchor="full-embed-of-YANG-schema-nodes">
+                <name>Defining a new extension</name>
+                <section>
+                    <name>Included Data Nodes Path Adjustment</name>
+                    <t>
+                        In the case of the call to a "leafref" statement, one must be able to specify the path of a leaf, even through a module passed as an argument to a "full-embed" statement.
+                        The paths of the nodes contained in the module (referred in the following paragraph as "the embedded nodes") used in a "full-embed" statement are computed as follows.
+                        TODO: explain how the path are computed, which basically boils down to concatenating the main module path with the included one ?
+                    </t>
+                </section>
+                <section anchor="rpc-operations">
+                    <name>RPC operations</name>
+                    <t>
+                        Todo, read the schema-mount RFC part on this, and apply to our case
+                    </t>
+                </section>
+            </section>
+        </section>
+    </section-->
+
+    <section anchor="yang-module-code">
+        <name>ietf-full-embed YANG module</name>
+        <t>
+            We present in this section the YANG module defining the "full-embed" extension.
+            The module in itself defines solely the 'embed' extension.
+            A module importing this extension SHOULD use the prefix 'full', so that the statement reads "full:embed" when used in the code.
+        </t>
+        <sourcecode name="ietf-full-embed@2023-11-03.yang" type="yang" markers="true" ><![CDATA[
+module ietf-yang-full-embed {
+  yang-version 1.1;
+  namespace "urn:ietf:params:xml:ns:yang:ietf-yang-full-embed";
+  prefix full;
+
+  organization
+    "IETF NETMOD (NETCONF Data Modeling Language) Working Group";
+  contact
+    "WG Web:   <https://datatracker.ietf.org/wg/netmod/>
+     WG List:  <mailto:netmod@ietf.org>
+
+     Editor:   ";
+  description
+    "This module defines a YANG extension statement that can be used
+     to incorporate data models defined in other YANG modules in a
+     module.
+
+     The key words 'MUST', 'MUST NOT', 'REQUIRED', 'SHALL', 'SHALL
+     NOT', 'SHOULD', 'SHOULD NOT', 'RECOMMENDED', 'NOT RECOMMENDED',
+     'MAY', and 'OPTIONAL' in this document are to be interpreted as
+     described in BCP 14 (RFC 2119) (RFC 8174) when, and only when,
+     they appear in all capitals, as shown here.
+
+     Copyright (c) 2023 IETF Trust and the persons identified as
+     authors of the code.  All rights reserved.
+
+     Redistribution and use in source and binary forms, with or
+     without modification, is permitted pursuant to, and subject to
+     the license terms contained in, the Revised BSD License set
+     forth in Section 4.c of the IETF Trust's Legal Provisions
+     Relating to IETF Documents
+     (https://trustee.ietf.org/license-info).
+
+     This version of this YANG module is part of RFC XXXX;
+     see the RFC itself for full legal notices.";
+
+  revision 2023-11-05 {
+    description
+      "Initial revision.";
+    reference
+      "RFC XXXX: YANG Full Embed";
+  }
+
+  extension embed {
+    argument prefix;
+    description
+      "The argument 'prefix' MUST be the prefix of a module imported
+       by the calling module.
+
+       The 'embed' statement MUST NOT be used in a YANG version 1
+       module, neither explicitly nor via a 'uses' statement.
+
+       The 'embed' statement MAY be present as a substatement of
+       'anydata' and MUST NOT be present elsewhere.
+
+       Whenever a sequence of 'embed' statements is used, the schema
+       tree defined by the set of the included modules is inserted
+       in the schema tree of the calling module, at the place where
+       the sequence is declared";
+  }
+}
+            ]]>
+        </sourcecode>
+    </section>
+    <!--section anchor="use-examples" >
+        <name>Examples Of Use</name>
+        <t>
+            Todo: add examples of use. Illustrating both the "full-embed" statement, as well as the "leafref" through a module that has been "fully-embed".
+        </t>
+    </section-->
+
+    <section anchor="security">
+        <name>Security Considerations</name>
+        <t>
+            TODO
+        </t>
+    </section>
+    <section anchor="iana">
+        <name>IANA Considerations</name>
+        <t>
+            TODO
+        </t>
+    </section>
+    <section>
+        <name>Contributors</name>
+    </section>
+    <section>
+        <name>Open issues</name>
+        <ul>
+            <li>What name should we give to this draft? Any suggestions instead of full embed?</li>
+            <li>Do we want to support the parent-nodes mechanism from <xref target="RFC8528"/>? (see below)</li>
+            <li>Do we allow full embed into an augment? We could even relax no self-reference to have a module embed itself into another by augmenting it?</li>
+            <li>Does this mechanism already exist?</li>
+            <li>
+                Do we want to add a partial embed with an xpath instead of just the prefix? The goal would be to include only part of a module.
+                This complexifies a bit the validation as leaf-ref, must, when and other statement involving Xpath will need to be reinterpreted in that new context.
+            </li>
+        </ul>
+        <section>
+            <name>Parent-nodes mechanism from schema mount</name>
+            <t>
+                YANG Schema Mount includes a mechanism to make some nodes from the embedding model available to the embedded model for validation purposes.
+                We could achieve the same by adding a second extension, which can also only appear under a "full:embed" nodes.
+                That extension, for instance named "full:embed-parent-refs" would take a Xpath expression as the in the "parent-reference" leaflist defined in the YANG Schema Mount and would have the same semantics.
+                If several XPath are needed for clarity, the statement can be repeated with several values.
+            </t>
+            <t>
+                As an example, <xref target="pseudo-yang-parent-ref"/> restates the parent-references example from <xref target="RFC8528"/> using this new extension.
+                We might want to put some restrictions on the nodes that can be referred to in the Xpath argument.
+            </t>
+            <figure anchor="pseudo-yang-parent-ref">
+                <name>Pseudo-YANG example of parent-references from <xref target="RFC8528"/> with "full:embed"</name>
+                <artwork type="ascii-art">
+...
+import "ietf-routing" {
+  prefix "rt";
+}
+import "ietf-interfaces" {
+  prefix "if";
+}
+
+...
+container network-instances {
+  list network-instance {
+    leaf name {...}
+    anydata root {
+      full:embed "rt" {
+        full:embed-parent-refs "if:interfaces/if:interface[\
+              ni:bind-network-instance-name = current()/../ni:name]";
+      }
+      // other full:embed if needed
+    }
+  }
+}
+                </artwork>
+
+            </figure>
+        </section>
+    </section>
+    </middle>
+    <back>
+        <references>
+            <name>References</name>
+            <references>
+                <name>Normative References</name>
+                <xi:include href="http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml"/>
+                <xi:include href="http://xml.resource.org/public/rfc/bibxml/reference.RFC.7950.xml"/>
+                <xi:include href="http://xml.resource.org/public/rfc/bibxml/reference.RFC.8174.xml"/>
+                <xi:include href="http://xml.resource.org/public/rfc/bibxml/reference.RFC.8528.xml"/>
+            </references>
+            <references>
+                <name>Informative References</name>
+                <xi:include href="http://xml.resource.org/public/rfc/bibxml/reference.RFC.6241.xml"/>
+                <xi:include href="http://xml.resource.org/public/rfc/bibxml/reference.RFC.8525.xml"/>
+                <xi:include href="http://xml.resource.org/public/rfc/bibxml/reference.RFC.8340.xml"/>
+                <xi:include href="http://xml.resource.org/public/rfc/bibxml/reference.RFC.8641.xml"/>
+                <xi:include href="https://bib.ietf.org/public/rfc/bibxml3/reference.I-D.ietf-opsawg-collected-data-manifest.xml"/>
+                <xi:include href="https://bib.ietf.org/public/rfc/bibxml3/reference.I-D.havel-opsawg-digital-map.xml"/>
+                <xi:include href="https://bib.ietf.org/public/rfc/bibxml3/reference.I-D.clemm-netmod-peermount.xml"/>
+
+            </references>
+        </references>
+        <?rfc needLines="100"?>
+        <section>
+            <name>Changes between revisions</name>
+            <t>
+                00 -> 01
+            </t>
+            <ul>
+                <li>Renamed full include -> full embed</li>
+                <li>Require extension to appear in anydata for clients not supporting extension</li>
+                <li>Allow "if-feature" and "must" as sub-statement of full:embed, explain that feature work at server level</li>
+            </ul>
+        </section>
+        <section anchor="examples">
+            <name>Examples</name>
+            <t>
+                In this section we present some minimalistic examples in order to illustrate the "full:embed" statement.
+                For these examples, we are in a situation where we have a device-level module already defined and we want to have a network-level module that represent a list of device, each having an independent instance of the device-level module.
+                This situation might arise if we want to simplify the network management by presenting a unified model for the network.
+                In that case, the heterogeneity of the devices should be handled by mapping their model to the device-level module (which is clearly out of scope for this draft).
+            </t>
+            <t>
+                In our simplistic example, the device-level module simply exposes the hostname and the cpu-usage of the device.
+                Note that we cannot modify this device-level module, because in a more realistic example we would be reusing standard modules.
+                The tree representation (<xref target="RFC8340"/>) of the 'device-level' module is depicted in <xref target="device-level-tree"/>.
+            </t>
+            <figure anchor="device-level-tree">
+                <name>YANG Tree representation of the device-level module.</name>
+                <artwork type="ascii-art">
+                    <![CDATA[
+module: device-level
+  +--rw hostname     string
+  +--ro cpu-usage?   int8
+        ]]>
+                </artwork>
+            </figure>
+            <t>
+                For the network-level module, we have a list of devices indexed by their 'device-id'.
+                The tree representation (<xref target="RFC8340"/>) of such a module is depicted in <xref target="network-level-tree-stub"/>.
+            </t>
+            <figure anchor="network-level-tree-stub">
+                <name>YANG Tree representation of a stub for the network-level module</name>
+                <artwork type="ascii-art">
+                    <![CDATA[
+module: network-level-stub
+  +--rw devices
+     +--rw device* [device-id]
+        +--rw device-id    string
+        ]]>
+                </artwork>
+            </figure>
+            <t>
+                The goal is now to complete this stub so that the full contents of the 'device-level' is added under the "device" list.
+            </t>
+            <section>
+                <name>Example using YANG Full Embed</name>
+                <t>
+                    We propose in this section a YANG module for 'network-level'.
+                    The YANG code is presented in <xref target="network-level-full-embed"/>.
+                </t>
+                <figure anchor="network-level-full-embed">
+                    <name>Version of the network-level module using full:embed</name>
+                    <artwork type="ascii-art">
+                        <![CDATA[
+module network-level {
+  yang-version 1.1;
+  namespace "urn:network-level";
+  prefix "net-l";
+
+  import "ietf-yang-full-include" {
+    prefix "full";
+  }
+
+  import "device-level" {
+    prefix "dev-l";
+  }
+
+  container devices {
+    list device {
+      key device-id;
+      leaf device-id {
+        type string;
+      }
+      anydata device-content {
+           full:include "dev-l";
+      }
+    }
+  }
+}
+                        ]]>
+                    </artwork>
+                </figure>
+                <t>
+                    At the moment, this code is accepted by the YANG compilers, but since the extension is not implemented, it simply ignores it.
+                    Note that all the information (which modules to embed, where to embed them) is defined in this module.
+                    More specifically, the line 'full:embed "dev-l";' states that the full schema of the 'device-level' module, identified by its prefix "dev-l" must be embedded at that location.
+                    By adding more occurrences of "full:embed" there, one can define a more complex schema to be embedded at that location.
+                </t>
+            </section>
+            <section>
+                <name>Using YANG Schema Mount</name>
+                <t>
+                    In this section, we show how a similar result could be attained using YANG Schema Mount.
+                    The network-level module is presented in <xref target="network-level-schema-mount"/>.
+                </t>
+                <figure anchor="network-level-schema-mount">
+                    <name>Version of the network-level module using Schema Mount</name>
+                    <artwork type="ascii-art">
+                        <![CDATA[
+module network-level {
+  yang-version 1.1;
+  namespace "urn:network-level";
+  prefix "net-l";
+
+  import ietf-yang-schema-mount {
+    prefix yangmnt;
+  }
+
+  container devices {
+    list device {
+      key device-id;
+      leaf device-id {
+        type string;
+      }
+      container device-contents{
+        yangmnt:mount-point "device-schema";
+      }
+    }
+  }
+}
+                        ]]>
+                    </artwork>
+                </figure>
+                <t>
+                    As explained in <xref target="yang-full-embed-def"/>, the yang-library corresponding to the modules to embed, as well as the data required by 'ietf-yang-mount' needs to be specified in some other files.
+                    Using the 'yanglint' tool from libyang (<eref target="https://github.com/CESNET/libyang"/>), this module can be compiled to provide a tree representation as shown in <xref target="tree-full-sm"/>.
+                </t>
+                <figure anchor="tree-full-sm">
+                    <name>Full tree of  both network- and device-level using Schema Mount</name>
+                    <artwork type="ascii-art">
+                        <![CDATA[
+module: network-level
+  +--rw devices
+     +--rw device* [device-id]
+        +--rw device-id          string
+        +--mp device-contents
+           +--rw hostname/    string
+           +--ro cpu-usage/?  int8
+                        ]]>
+                    </artwork>
+                </figure>
+                <t>
+                    The command for obtaining that schema is 'yanglint -f tree -p . -x extension-data.xml -Y network-level-yanglib.xml  yang/network-level.yang', assuming all the YANG modules and the two xml files are in the current folder.
+                    The file 'network-level-yanglib.xml' contains the YANG Library data for the network-level module.
+                    The file 'extension-data.xml' contains the YANG Library data defining the schema to use at the mount point, as well as the data required by YANG Schema Mount.
+                    Both are reproduced in <xref target="files"/>.
+                </t>
+            </section>
+            <section anchor="files">
+                <name>Support Files</name>
+                <t>
+                    The code of the 'device-level' module is given in <xref target="device-level-yang"/>.
+                    Then the data files 'network-level-yanglib.xml' and 'extension_data.xml' are provided.
+                    These files are needed to compile the Schema Mount version of our example with yanglint.
+                </t>
+                <figure anchor="device-level-yang">
+                    <name>device-level YANG module</name>
+                    <artwork type="ascii-art">
+                        <![CDATA[
+module device-level {
+  yang-version 1.1;
+  namespace "urn:device-level";
+  prefix mnt;
+
+  leaf hostname {
+    type string;
+    mandatory true;
+  }
+  leaf cpu-usage {
+    type int8;
+    config false;
+  }
+}
+                        ]]>
+                    </artwork>
+                </figure>
+                <sourcecode name="network-level-yanglib.xml" type="xml" markers="true" ><![CDATA[
+<yang-library xmlns="urn:ietf:params:xml:ns:yang:ietf-yang-library"
+     xmlns:ds="urn:ietf:params:xml:ns:yang:ietf-datastores">
+   <module-set>
+     <name>main-set</name>
+     <module>
+       <name>ietf-datastores</name>
+       <revision>2018-02-14</revision>
+       <namespace>
+           urn:ietf:params:xml:ns:yang:ietf-datastores
+       </namespace>
+     </module>
+     <module>
+       <name>ietf-yang-library</name>
+       <revision>2019-01-04</revision>
+       <namespace>
+           urn:ietf:params:xml:ns:yang:ietf-yang-library
+       </namespace>
+     </module>
+     <module>
+       <name>ietf-yang-schema-mount</name>
+       <revision>2019-01-14</revision>
+       <namespace>
+           urn:ietf:params:xml:ns:yang:ietf-yang-schema-mount
+       </namespace>
+     </module>
+     <module>
+       <name>network-level</name>
+       <namespace>urn:network-level</namespace>
+     </module>
+     <import-only-module>
+       <name>ietf-yang-types</name>
+       <revision>2013-07-15</revision>
+       <namespace>
+           urn:ietf:params:xml:ns:yang:ietf-yang-types
+       </namespace>
+     </import-only-module>
+     <import-only-module>
+       <name>ietf-inet-types</name>
+       <revision>2013-07-15</revision>
+       <namespace>
+           urn:ietf:params:xml:ns:yang:ietf-inet-types
+       </namespace>
+     </import-only-module>
+   </module-set>
+   <schema>
+     <name>main-schema</name>
+     <module-set>main-set</module-set>
+   </schema>
+   <datastore>
+     <name>ds:running</name>
+     <schema>main-schema</schema>
+   </datastore>
+   <datastore>
+     <name>ds:operational</name>
+     <schema>main-schema</schema>
+   </datastore>
+   <content-id>1</content-id>
+ </yang-library>
+ <modules-state
+   xmlns="urn:ietf:params:xml:ns:yang:ietf-yang-library">
+   <module-set-id>2</module-set-id>
+ </modules-state>
+                ]]>
+                </sourcecode>
+                <sourcecode name="extension_data.xml" type="xml" markers="true" ><![CDATA[
+<yang-library xmlns="urn:ietf:params:xml:ns:yang:ietf-yang-library"
+             xmlns:ds="urn:ietf:params:xml:ns:yang:ietf-datastores">
+    <module-set>
+        <name>mountee-set</name>
+        <module>
+            <name>device-level</name>
+            <namespace>urn:device-level</namespace>
+        </module>
+        <module>
+            <name>ietf-datastores</name>
+            <revision>2018-02-14</revision>
+            <namespace>
+                urn:ietf:params:xml:ns:yang:ietf-datastores
+            </namespace>
+        </module>
+        <module>
+            <name>ietf-yang-library</name>
+            <revision>2019-01-04</revision>
+            <namespace>
+                urn:ietf:params:xml:ns:yang:ietf-yang-library
+            </namespace>
+        </module>
+        <import-only-module>
+            <name>ietf-yang-types</name>
+            <revision>2013-07-15</revision>
+            <namespace>
+                urn:ietf:params:xml:ns:yang:ietf-yang-types
+            </namespace>
+        </import-only-module>
+        <import-only-module>
+            <name>ietf-inet-types</name>
+            <revision>2013-07-15</revision>
+            <namespace>
+                urn:ietf:params:xml:ns:yang:ietf-inet-types
+            </namespace>
+        </import-only-module>
+    </module-set>
+    <schema>
+        <name>test-schema</name>
+        <module-set>mountee-set</module-set>
+    </schema>
+    <datastore>
+        <name>ds:running</name>
+        <schema>test-schema</schema>
+    </datastore>
+    <datastore>
+        <name>ds:operational</name>
+        <schema>test-schema</schema>
+    </datastore>
+    <content-id>2</content-id>
+</yang-library>
+<modules-state
+    xmlns="urn:ietf:params:xml:ns:yang:ietf-yang-library">
+    <module-set-id>2</module-set-id>
+</modules-state>
+<schema-mounts
+    xmlns="urn:ietf:params:xml:ns:yang:ietf-yang-schema-mount">
+    <mount-point>
+        <module>network-level</module>
+        <label>device-schema</label>
+        <shared-schema/>
+    </mount-point>
+</schema-mounts>
+                ]]>
+                </sourcecode>
+            </section>
+        </section>
+        <section numbered="false">
+            <name>Acknowledgements</name>
+            <t>
+                Thanks to Ladislav Lhotka and Ignacio Dominguez Martinez-Casanueva for their reviews and comments.
+            </t>
+        </section>
+    </back>
+</rfc>
+<!-- Local Variables: -->
+<!-- fill-column:72 -->
+<!-- End: -->
