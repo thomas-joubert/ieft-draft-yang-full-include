@@ -40,7 +40,7 @@
             <email>thomas.joubert1@huawei-partners.com</email>
         </address>
     </author>
-    <date year="2024" month="4" day="18"/>
+    <date year="2024" month="4" day="23"/>
     <area>General</area>
     <workgroup>NETMOD</workgroup>
     <abstract>
@@ -206,6 +206,38 @@
             <t>
                 Both statements have the same meaning as in <xref target="RFC7950"/>.
                 The when statement MUST NOT refer to nodes which are in the embedded module designated by the "full:embed" statement.
+            </t>
+        </section>
+        <section anchor="recursive">
+            <name>Recursive Embedding</name>
+            <t>
+                We call recursive embedding the case where a schema is embedded into a sub node of itself.
+                Recursive embedding is an issue as it creates an infinite data model, in the sense that the tree representation <xref target="RFC8340"/> of the data model would be infinite.
+                Recursive embedding MUST be rejected by the YANG compiler.
+                An example, not allowed here, of use case for recursive embedding would be a module defining an expression, where the module embeds itself in each place where a sub-expression is needed.
+                Such a pattern mimics the grammar where the non-terminal for an expression is reused in each place where a sub-expression is needed.
+            </t>
+            <t>
+                It is however allowed to multiple embedding levels, for instance the case where module A embeds module B which embeds module C.
+                This pattern is also allowed in YANG Schema Mount as explained in <xref target="RFC8528" sectionFormat="of" section="3.4"/>.
+            </t>
+            <t>
+                In this section, we argue that standard YANG rules combined with the extension presented in this document do not allow recursive embeddings.
+                In order to have a recursive embedding, it is necessary to embed the data model as a sub-node of itself.
+                In other world, we need to construct a set of YANG modules such that resolving augments, deviations and grouping yields a data model with one anydata node embedding this set of YANG modules.
+                Let’s assume that such a set exists and show that we have a contradiction.
+            </t>
+            <t>
+                As specified in Section <xref target="yang-full-embed-def"/>, embedded modules must be imported by the embedding module.
+                This creates a dependency from the embedding module to the embedded modules.
+                Note that indirect dependencies also cover the case of multiple embedding levels presented in the second paragraph of this Section.
+                Similarly, every module augmenting, deviating or reusing a grouping from a module using the full:embed statement will depend on the modules embedded by these statements and cannot be imported by these embedded modules.
+            </t>
+            <t>
+                As specified in Section <xref target="yang-full-embed-def"/>, a module cannot embed itself.
+                Since every module in the set is embedded, and cannot be embedded by itself, it is necessarily a dependency on another module of the set.
+                Therefore, by following that inverse dependency relation we would always find a next node and eventually discover a dependency loop.
+                Since YANG prohibits circular dependencies, the set of modules creating a recursive embedding would not be accepted by the compiler.
             </t>
         </section>
     </section>
