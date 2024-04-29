@@ -55,19 +55,25 @@
             document aims to provide the same mechanism at design time.
         </t>
     </abstract>
+    <note removeInRFC="true">
+        <name>Discussion venue</name>
+        <t>
+            Source for this draft and issue tracker can be found on <eref target="https://github.com/thomas-joubert/ieft-draft-yang-full-include">github</eref>.
+        </t>
+    </note>
 </front>
 <middle>
     <section anchor="intro" >
         <name>Introduction</name>
         <t>
-            <xref target="RFC8528"/> introduces the challenges of reusing existing YANG modules, especially when including the full subtree of YANG module under a specific node of another module.
+            <xref target="RFC8528" section="1"/> introduces the challenges of reusing existing YANG modules, especially when including the full subtree of YANG module under a specific node of another module.
             In that RFC, three different phases of data model life cycle are identified: "design time", "implementation time" and "run time".
             Only the last two are covered.
             We focus here on the first phase of the life cycle, that is inserting modules at design time.
         </t>
         <t>
             We identified some use cases that require this design time definition of which modules need to be included in the top-level module.
-            The have in common the need to re-use YANG modules defined for the devices in the context of a network-level module.
+            They have in common the need to re-use YANG modules defined for the devices in the context of a network-level module.
             Also, they both aim to define a model that is independent of the underlying devices.
         </t>
         <ul>
@@ -75,7 +81,7 @@
                 The use case that triggered the creation of this document is <xref target="I-D.ietf-opsawg-collected-data-manifest"/>.
                 In this draft, the goal is to provide a YANG model giving the context in which YANG-push <xref target="RFC8641"/> data are collected so that they can be exploited a posteriori.
                 To get the full context, we need the hardware and os version of each device, but also the list of YANG modules supported by the devices and the parameters for the YANG-push subscriptions.
-                For the last two items YANG Library <xref target="RFC8525"/> and YANG Push <xref target="RFC8641"/> provide good and standard modules for representing this information at the device level.
+                For the last two items, YANG Library <xref target="RFC8525"/> and YANG Push <xref target="RFC8641"/> provide good and standard modules for representing this information at the device level.
                 However, the data manifests need to be considered at the network level, so that we can distinguish between the devices from which they come.
                 In YANG, that means including them in a list indexed by the device id, which proves out to be difficult without copy-pasting the original modules.
             </li>
@@ -86,7 +92,7 @@
             </li>
         </ul>
         <t>
-            YANG Schema Mount <xref target="RFC8528"/> and Peer Mount <xref target="I-D.clemm-netmod-peermount"/> focus on mounting a given part of a an existing data instance into another data instance.
+            YANG Schema Mount <xref target="RFC8528"/> and Peer Mount <xref target="I-D.clemm-netmod-peermount"/> focus on mounting a given part of an existing data instance into another data instance.
             Although the final goal is the same: being able to reuse modules defined elsewhere in order to avoid redefining them, the approach is more focused on the runtime than the design time.
             In the first case, the mapping between the mount points and the existing modules to be mounted at that mount point is left to the NETCONF <xref target="RFC6241"/> server.
             Thus, to guarantee that the contents under a given mount point conforms to a predefined schema requires the proper configuration of the server.
@@ -132,18 +138,52 @@
         <ul>
             <li>mount point</li>
         </ul>
+        <t>
+            This document defines the following terms:
+        </t>
+        <dl>
+            <dt>embedding point</dt>
+            <dd>
+                An anydata node which contains embedded models.
+                Similar to the mount point in <xref target="RFC8528"/>.
+            </dd>
+            <dt>embedding module</dt>
+            <dd>
+                A YANG module which contains at least one statement for embedding another module.
+            </dd>
+            <dt>embedded module</dt>
+            <dd>
+                A YANG module which is embedded by another YANG module.
+                This definition depends on the context and not on the YANG module intrinsically.
+            </dd>
+        </dl>
     </section>
     <section anchor="yang-full-embed">
-        <name>Full Embed</name>
+        <name>Concepts</name>
         <t>
-            The full embed mechanism defined in this document completes <xref target="RFC8528"/>, by providing a mechanism to "mount" modules at design time.
-            Supporting mounting modules at this step of the data model life cycle is left out of scope in <xref target="RFC8528"/>.
+            As said above, the full embed mechanism defined in this document completes <xref target="RFC8528"/>, by providing a mechanism to "mount" modules at design time, which is left out of scope in <xref target="RFC8528"/>.
         </t>
         <t>
-            The approach for supporting the full embed mechanism is to keep the semantics of <xref target="RFC8528"/> for the resulting data model.
             In <xref target="RFC8528"/>, the list of modules to mount in each mount point is left to the NETCONF server.
-            In this document, we propose the full embed mechanism to define this mapping directly in the YANG module that embeds the mounted modules.
+            In this document, we propose the full embed mechanism to define this mapping directly in the embedding YANG module, by listing the modules to implement in each embedding-point.
         </t>
+        <t>
+            The approach for supporting the full embed mechanism is to keep the semantics of <xref target="RFC8528"/> for the resulting data model:
+        </t>
+        <ul>
+            <li>
+                The set of embedded modules forms an independent YANG context: an embedded module cannot refer (for instance via leafref, must, when) to nodes outside the embedding point.
+            </li>
+            <li>
+                TBD: decide whether we support the parent-nodes mechanism
+            </li>
+            <li>
+                Notifications, RPCs are handled as in <xref target="RFC8528" section="5"/>.
+            </li>
+            <li>
+                Several levels of embedding can be used, similar to <xref target="RFC8528" section="3.4"/>.
+            </li>
+        </ul>
 		<t>
 			To ensure interoperability with clients that do not support the full embed extension, the full embed statement can only appear within an anydata node.
 			Clients that do not support the extension will see the contents of the embedded model as arbitrary data.
@@ -151,38 +191,44 @@
 		</t>
         <t>
             In the sequel, we use "full" as the prefix for the module 'ietf-yang-full-embed' (see <xref target="yang-module-code"/>).
-            Thus "full:embed" refers to the extension 'embed' defined in that module.
+            Thus, "full:embed" refers to the extension 'embed' defined in that module.
         </t>
-        <section anchor="yang-full-embed-def">
-            <name>Definition</name>
-            <t>
-                The "full:embed" statement can appear as a sub-statement of anydata.
-            </t>
-            <t>
-                The "full:embed" statement takes as an argument a prefix, that must be the prefix associated to an imported module. Modules can contain
-                multiple uses of the "full:embed" statement. An "anydata" statement MAY contain multiple uses of the "full:embed" statement.
-                These multiple uses define the full list of modules to be embedded, rooted in the anydata node where the "full:embed" statement is used.
-            </t>
-            <t>
-                The "full:embed" statement can be interpreted using YANG Schema Mount <xref target="RFC8528"/>, by following these steps:
-            </t>
-            <ol>
-                <li>For each anydata node containing a set of "full:embed" statement, replace them by a container containing single "mount-point" with a unique label.</li>
-                <li>Declare each of these "mount-points" as "shared-schema" in the data model defined in <xref target="RFC8528"/>.</li>
-                <li>
-                    In the instance corresponding to each "mount-point", define the ietf-yang-library <xref target="RFC8525"/> to include a module-set (at '/yang-library/module-set/) with the following.
-                    The list 'module' contains an entry for every module referred to in the set of "full:embed" statements corresponding to the "mount-point".
-                    Additionally, the list 'module' contains an entry for "ietf-yang-library" as it is needed by YANG Schema mount.
-                    As usual, the list 'imported-modules' contains the list of dependencies needed by the modules in the 'module' list.
-                </li>
-            </ol>
-            <t>An example of module using "full:embed" and its translation into a similar YANG Schema mount version is presented in <xref target="examples"/>.</t>
-        </section>
-        <section>
+    </section>
+    <section anchor="yang-full-embed-def">
+        <name>The "full:embed" statement</name>
+        <t>
+            The "full:embed" statement MAY appear as a sub-statement of anydata and MUST not appear anywhere else.
+        </t>
+        <t>
+            The "full:embed" statement takes a prefix as argument.
+            That prefix MUST be the prefix associated to an imported module.
+            Modules can contain multiple uses of the "full:embed" statement.
+            An "anydata" statement MAY contain multiple uses of the "full:embed" statement.
+            These multiple uses define the full list of modules to be embedded, rooted in the anydata node where the "full:embed" statement is used.
+        </t>
+        <t>
+            The "full:embed" statement can be interpreted using YANG Schema Mount <xref target="RFC8528"/>, by following these steps:
+        </t>
+        <ol>
+            <li>For each anydata node containing a set of "full:embed" statement or embedding point, replace them by a container containing a single mount point with a unique label.</li>
+            <li>Declare each of these mount points as "shared-schema" in the data model defined in <xref target="RFC8528"/>.</li>
+            <li>
+                In the instance corresponding to each mount point, define the ietf-yang-library <xref target="RFC8525"/> to include a module-set (at /yang-library/module-set/) with the following.
+                The list 'module' contains an entry for every module embedded in the corresponding embedding point.
+                Additionally, the list 'module' contains an entry for "ietf-yang-library" as it is needed by YANG Schema mount.
+                As usual, the list 'imported-modules' contains the list of dependencies needed by the modules in the 'module' list.
+            </li>
+        </ol>
+        <t>
+            As a consequence, a module embedded in a given embedding point can only refer to other modules embedded in the same embedding point (i.e. via a leafref, must, augment, deviate, when or any other YANG statement requiring a path).
+            Embedding a module that refers to a node defined outside of modules embedded in the same embedding point MUST trigger a compilation error.
+        </t>
+        <t>
+            A module MUST NOT use the "full:embed" statement with its own prefix as argument. This rule prevents any infinite recursion in the embedded schemas. See <xref target="recursive"/> for more details.
+        </t>
+        <t>An example of module using "full:embed" and its translation into a similar YANG Schema mount version is presented in <xref target="examples"/>.</t>
+        <!--section>
             <name>Limitations</name>
-            <t>
-                A module MUST NOT use the "full:embed" statement with its own prefix as argument. This rule prevents any infinite recursion in the mounted schemas.
-            </t>
             <t>
                 As for YANG Schema Mount, the set of embedded modules is an independent YANG context, where every reference (for instance leaf-ref, augment, when) is contained in that context.
                 It is not possible for an embedded module to refer to the embedding module, which would be rejected by the compiler anyway because it would create a dependency loop.
@@ -193,9 +239,9 @@
                 Therefore it’s not possible to activate some features for some embedded modules only.
                 The feature is either supported by the server and then activated for every module (embedded or not) or not supported and then deactivated for all modules (embedded or not).
             </t>
-        </section>
+        </section-->
         <section>
-            <name>Allowed sub-statements</name>
+            <name>The full:embed’s Sub-statements</name>
             <t>
                 The following sub-statements are allowed in the "full:embed" statement:
             </t>
@@ -218,8 +264,8 @@
                 Such a pattern mimics the grammar where the non-terminal for an expression is reused in each place where a sub-expression is needed.
             </t>
             <t>
-                It is however allowed to multiple embedding levels, for instance the case where module A embeds module B which embeds module C.
-                This pattern is also allowed in YANG Schema Mount as explained in <xref target="RFC8528" sectionFormat="of" section="3.4"/>.
+                It is however allowed to define multiple embedding levels, as in the case where module A embeds module B which embeds module C.
+                This pattern is also allowed in YANG Schema Mount as explained in <xref section="3.4" sectionFormat="of" target="RFC8528"/>.
             </t>
             <t>
                 In this section, we argue that standard YANG rules combined with the extension presented in this document do not allow recursive embeddings.
@@ -228,13 +274,13 @@
                 Let’s assume that such a set exists and show that we have a contradiction.
             </t>
             <t>
-                As specified in Section <xref target="yang-full-embed-def"/>, embedded modules must be imported by the embedding module.
+                As specified in <xref target="yang-full-embed-def"/>, embedded modules must be imported by the embedding module.
                 This creates a dependency from the embedding module to the embedded modules.
                 Note that indirect dependencies also cover the case of multiple embedding levels presented in the second paragraph of this Section.
                 Similarly, every module augmenting, deviating or reusing a grouping from a module using the full:embed statement will depend on the modules embedded by these statements and cannot be imported by these embedded modules.
             </t>
             <t>
-                As specified in Section <xref target="yang-full-embed-def"/>, a module cannot embed itself.
+                As specified in <xref target="yang-full-embed-def"/>, a module cannot embed itself.
                 Since every module in the set is embedded, and cannot be embedded by itself, it is necessarily a dependency on another module of the set.
                 Therefore, by following that inverse dependency relation we would always find a next node and eventually discover a dependency loop.
                 Since YANG prohibits circular dependencies, the set of modules creating a recursive embedding would not be accepted by the compiler.
@@ -280,13 +326,52 @@
             ]]>
         </sourcecode>
     </section>
-    <!--section anchor="use-examples" >
-        <name>Examples Of Use</name>
+    <section anchor="yanglib">
+        <name>Interaction with YANG library <xref target="RFC8525"/></name>
         <t>
-            Todo: add examples of use. Illustrating both the "full-embed" statement, as well as the "leafref" through a module that has been "fully-embed".
+            The YANG Library model <xref target="RFC8525"/> provides the list of YANG modules, along with their features and deviations, supported by a given server.
+            In this data model, specifying the supported YANG modules is done by grouping them into module sets, then grouping these module sets into schemas and finally assigning schemas to the supported datastores.
+            As stated in <xref target="yang-full-embed-def"/>, the list of full:embed statement defines a schema in the YANG library model.
+            In this section, we augment the YANG library module to specify the mapping of these schemas to each embedding point.
         </t>
-    </section-->
-
+        <t>
+            As a result, the global schema for a given datastore is split into the "root" schema as existing before this extension and the schemas for all embedding points defined under that root schema.
+            Modules that are embedded appear in at least twice of these schemas.
+            Modules that are both embedded and implemented in the "root" schema will appear as implemented in both of the corresponding schemas.
+            The server might assign different features in each case.
+            Modules that are only implemented in the embedded part appear as imported, i.e. in the 'import-only-module' list, for the "root" schema and as implemented in the schema mapped to the embedding point in which they belong.
+        </t>
+        <section anchor="yanglib-tree">
+            <name>ietf-full-embed-library data model</name>
+            <t>
+                The module ietf-full-embed-library augments the yang-library container to include the mapping of schemas to embedding points.
+                We present in <xref target="yanglib-augment-tree"/> the tree representation of the augmented yang-library container according to <xref target="RFC8340"/>.
+            </t>
+            <figure anchor="yanglib-augment-tree">
+                <name>Tree representation of the YANG library module augmented with mapping of schema to embedding points.</name>
+                <artwork type="ascii-art"><![CDATA[
+{{ yanglib_augment_tree }}
+                ]]>
+                </artwork>
+            </figure>
+            <t>
+                The mapping of schemas to embedding points is done in the 'embedding-points' list.
+                The keys of that list are identifying an embedding point by specifying the datastore and the path to the embedding-point.
+                The path, stored in 'embedding-path' MUST be an absolute path, and MUST NOT contain any predicates.
+                Finally, the 'schema' leaf-ref points to the schema associated to the embedding point defined by the datastore and the path.
+            </t>
+        </section>
+        <section anchor="yanglib-schema">
+            <name>ietf-full-embed-library YANG module</name>
+            <t>
+                We present below the YANG module augmenting the ietf-yang-library module (<xref target="RFC8525"/>).
+            </t>
+            <sourcecode name="ietf-full-embed-library@2023-11-03.yang" type="yang" markers="true"><![CDATA[
+{{ yanglib_augment_yang }}
+            ]]>
+            </sourcecode>
+        </section>
+    </section>
     <section anchor="security">
         <name>Security Considerations</name>
         <t>
@@ -381,6 +466,15 @@ container network-instances {
         <?rfc needLines="100"?>
         <section>
             <name>Changes between revisions</name>
+            <t>
+                01 -> 02
+            </t>
+            <ul>
+                <li>Minor edits and presentation, added definitions</li>
+                <li>Clarified link with RFC8528</li>
+                <li>Added section on YANG library augmentation and YANG module</li>
+                <li>Added section about recursivity</li>
+            </ul>
             <t>
                 00 -> 01
             </t>
@@ -514,7 +608,7 @@ module: network-level
         <section numbered="false">
             <name>Acknowledgements</name>
             <t>
-                Thanks to Ladislav Lhotka and Ignacio Dominguez Martinez-Casanueva for their reviews and comments.
+                Thanks to Ladislav Lhotka, Ignacio Dominguez Martinez-Casanueva and Andy Bierman for their reviews and comments.
             </t>
         </section>
     </back>
