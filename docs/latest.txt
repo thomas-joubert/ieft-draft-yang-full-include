@@ -5,8 +5,8 @@
 NETMOD                                                       J. Quilbeuf
 Internet-Draft                                                 B. Claise
 Intended status: Standards Track                              T. Joubert
-Expires: 28 October 2024                                          Huawei
-                                                           26 April 2024
+Expires: 6 January 2025                                           Huawei
+                                                             5 July 2024
 
 
                             YANG Full Embed
@@ -45,7 +45,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 28 October 2024.
+   This Internet-Draft will expire on 6 January 2025.
 
 
 
@@ -53,9 +53,9 @@ Status of This Memo
 
 
 
-Quilbeuf, et al.         Expires 28 October 2024                [Page 1]
+Quilbeuf, et al.         Expires 6 January 2025                 [Page 1]
 
-Internet-Draft               YANG Full Embed                  April 2024
+Internet-Draft               YANG Full Embed                   July 2024
 
 
 Copyright Notice
@@ -109,9 +109,9 @@ Table of Contents
 
 
 
-Quilbeuf, et al.         Expires 28 October 2024                [Page 2]
+Quilbeuf, et al.         Expires 6 January 2025                 [Page 2]
 
-Internet-Draft               YANG Full Embed                  April 2024
+Internet-Draft               YANG Full Embed                   July 2024
 
 
 1.  Introduction
@@ -165,9 +165,9 @@ Internet-Draft               YANG Full Embed                  April 2024
 
 
 
-Quilbeuf, et al.         Expires 28 October 2024                [Page 3]
+Quilbeuf, et al.         Expires 6 January 2025                 [Page 3]
 
-Internet-Draft               YANG Full Embed                  April 2024
+Internet-Draft               YANG Full Embed                   July 2024
 
 
    that mount point is left to the NETCONF [RFC6241] server.  Thus, to
@@ -221,9 +221,9 @@ Internet-Draft               YANG Full Embed                  April 2024
 
 
 
-Quilbeuf, et al.         Expires 28 October 2024                [Page 4]
+Quilbeuf, et al.         Expires 6 January 2025                 [Page 4]
 
-Internet-Draft               YANG Full Embed                  April 2024
+Internet-Draft               YANG Full Embed                   July 2024
 
 
    *  mount point
@@ -277,9 +277,9 @@ Internet-Draft               YANG Full Embed                  April 2024
 
 
 
-Quilbeuf, et al.         Expires 28 October 2024                [Page 5]
+Quilbeuf, et al.         Expires 6 January 2025                 [Page 5]
 
-Internet-Draft               YANG Full Embed                  April 2024
+Internet-Draft               YANG Full Embed                   July 2024
 
 
    In the sequel, we use "full" as the prefix for the module 'ietf-yang-
@@ -333,9 +333,9 @@ Internet-Draft               YANG Full Embed                  April 2024
 
 
 
-Quilbeuf, et al.         Expires 28 October 2024                [Page 6]
+Quilbeuf, et al.         Expires 6 January 2025                 [Page 6]
 
-Internet-Draft               YANG Full Embed                  April 2024
+Internet-Draft               YANG Full Embed                   July 2024
 
 
 4.1.  The full:embed’s Sub-statements
@@ -389,9 +389,9 @@ Internet-Draft               YANG Full Embed                  April 2024
 
 
 
-Quilbeuf, et al.         Expires 28 October 2024                [Page 7]
+Quilbeuf, et al.         Expires 6 January 2025                 [Page 7]
 
-Internet-Draft               YANG Full Embed                  April 2024
+Internet-Draft               YANG Full Embed                   July 2024
 
 
    As specified in Section 4, a module cannot embed itself.  Since every
@@ -445,9 +445,9 @@ Internet-Draft               YANG Full Embed                  April 2024
 
 
 
-Quilbeuf, et al.         Expires 28 October 2024                [Page 8]
+Quilbeuf, et al.         Expires 6 January 2025                 [Page 8]
 
-Internet-Draft               YANG Full Embed                  April 2024
+Internet-Draft               YANG Full Embed                   July 2024
 
 
         (https://trustee.ietf.org/license-info).
@@ -501,9 +501,9 @@ Internet-Draft               YANG Full Embed                  April 2024
 
 
 
-Quilbeuf, et al.         Expires 28 October 2024                [Page 9]
+Quilbeuf, et al.         Expires 6 January 2025                 [Page 9]
 
-Internet-Draft               YANG Full Embed                  April 2024
+Internet-Draft               YANG Full Embed                   July 2024
 
 
    that are both embedded and implemented in the "root" schema will
@@ -557,9 +557,9 @@ Internet-Draft               YANG Full Embed                  April 2024
 
 
 
-Quilbeuf, et al.         Expires 28 October 2024               [Page 10]
+Quilbeuf, et al.         Expires 6 January 2025                [Page 10]
 
-Internet-Draft               YANG Full Embed                  April 2024
+Internet-Draft               YANG Full Embed                   July 2024
 
 
    module: ietf-yang-library
@@ -613,9 +613,9 @@ Internet-Draft               YANG Full Embed                  April 2024
 
 
 
-Quilbeuf, et al.         Expires 28 October 2024               [Page 11]
+Quilbeuf, et al.         Expires 6 January 2025                [Page 11]
 
-Internet-Draft               YANG Full Embed                  April 2024
+Internet-Draft               YANG Full Embed                   July 2024
 
 
 6.2.  ietf-full-embed-library YANG module
@@ -669,9 +669,9 @@ Internet-Draft               YANG Full Embed                  April 2024
 
 
 
-Quilbeuf, et al.         Expires 28 October 2024               [Page 12]
+Quilbeuf, et al.         Expires 6 January 2025                [Page 12]
 
-Internet-Draft               YANG Full Embed                  April 2024
+Internet-Draft               YANG Full Embed                   July 2024
 
 
         Redistribution and use in source and binary forms, with or
@@ -725,9 +725,9 @@ Internet-Draft               YANG Full Embed                  April 2024
 
 
 
-Quilbeuf, et al.         Expires 28 October 2024               [Page 13]
+Quilbeuf, et al.         Expires 6 January 2025                [Page 13]
 
-Internet-Draft               YANG Full Embed                  April 2024
+Internet-Draft               YANG Full Embed                   July 2024
 
 
          }
@@ -781,9 +781,9 @@ Internet-Draft               YANG Full Embed                  April 2024
 
 
 
-Quilbeuf, et al.         Expires 28 October 2024               [Page 14]
+Quilbeuf, et al.         Expires 6 January 2025                [Page 14]
 
-Internet-Draft               YANG Full Embed                  April 2024
+Internet-Draft               YANG Full Embed                   July 2024
 
 
    As an example, Figure 2 restates the parent-references example from
@@ -837,9 +837,9 @@ Internet-Draft               YANG Full Embed                  April 2024
 
 
 
-Quilbeuf, et al.         Expires 28 October 2024               [Page 15]
+Quilbeuf, et al.         Expires 6 January 2025                [Page 15]
 
-Internet-Draft               YANG Full Embed                  April 2024
+Internet-Draft               YANG Full Embed                   July 2024
 
 
    [RFC8528]  Bjorklund, M. and L. Lhotka, "YANG Schema Mount",
@@ -893,12 +893,22 @@ Internet-Draft               YANG Full Embed                  April 2024
 
 
 
-Quilbeuf, et al.         Expires 28 October 2024               [Page 16]
+Quilbeuf, et al.         Expires 6 January 2025                [Page 16]
 
-Internet-Draft               YANG Full Embed                  April 2024
+Internet-Draft               YANG Full Embed                   July 2024
 
 
 Appendix A.  Changes between revisions
+
+   01 -> 02
+
+   *  Minor edits and presentation, added definitions
+
+   *  Clarified link with RFC8528
+
+   *  Added section on YANG library augmentation and YANG module
+
+   *  Added section about recursivity
 
    00 -> 01
 
@@ -935,6 +945,15 @@ Appendix B.  Examples
 
        Figure 3: YANG Tree representation of the device-level module.
 
+
+
+
+
+Quilbeuf, et al.         Expires 6 January 2025                [Page 17]
+
+Internet-Draft               YANG Full Embed                   July 2024
+
+
    For the network-level module, we have a list of devices indexed by
    their 'device-id'.  The tree representation ([RFC8340]) of such a
    module is depicted in Figure 4.
@@ -946,13 +965,6 @@ Appendix B.  Examples
 
        Figure 4: YANG Tree representation of a stub for the network-
                                 level module
-
-
-
-Quilbeuf, et al.         Expires 28 October 2024               [Page 17]
-
-Internet-Draft               YANG Full Embed                  April 2024
-
 
    The goal is now to complete this stub so that the full contents of
    the 'device-level' is added under the "device" list.
@@ -990,6 +1002,14 @@ B.1.  Example using YANG Full Embed
 
        Figure 5: Version of the network-level module using full:embed
 
+
+
+
+Quilbeuf, et al.         Expires 6 January 2025                [Page 18]
+
+Internet-Draft               YANG Full Embed                   July 2024
+
+
    At the moment, this code is accepted by the YANG compilers, but since
    the extension is not implemented, it simply ignores it.  Note that
    all the information (which modules to embed, where to embed them) is
@@ -998,17 +1018,6 @@ B.1.  Example using YANG Full Embed
    identified by its prefix "dev-l" must be embedded at that location.
    By adding more occurrences of "full:embed" there, one can define a
    more complex schema to be embedded at that location.
-
-
-
-
-
-
-
-Quilbeuf, et al.         Expires 28 October 2024               [Page 18]
-
-Internet-Draft               YANG Full Embed                  April 2024
-
 
 B.2.  Using YANG Schema Mount
 
@@ -1046,6 +1055,17 @@ B.2.  Using YANG Schema Mount
    from libyang (https://github.com/CESNET/libyang), this module can be
    compiled to provide a tree representation as shown in Figure 7.
 
+
+
+
+
+
+
+Quilbeuf, et al.         Expires 6 January 2025                [Page 19]
+
+Internet-Draft               YANG Full Embed                   July 2024
+
+
    module: network-level
      +--rw devices
         +--rw device* [device-id]
@@ -1056,15 +1076,6 @@ B.2.  Using YANG Schema Mount
 
         Figure 7: Full tree of both network- and device-level using
                                 Schema Mount
-
-
-
-
-
-Quilbeuf, et al.         Expires 28 October 2024               [Page 19]
-
-Internet-Draft               YANG Full Embed                  April 2024
-
 
    The command for obtaining that schema is 'yanglint -f tree -p . -x
    extension-data.xml -Y network-level-yanglib.xml yang/network-
@@ -1099,6 +1110,18 @@ B.3.  Support Files
 
                      Figure 8: device-level YANG module
 
+
+
+
+
+
+
+
+Quilbeuf, et al.         Expires 6 January 2025                [Page 20]
+
+Internet-Draft               YANG Full Embed                   July 2024
+
+
    <CODE BEGINS> file "network-level-yanglib.xml"
    <yang-library xmlns="urn:ietf:params:xml:ns:yang:ietf-yang-library"
         xmlns:ds="urn:ietf:params:xml:ns:yang:ietf-datastores">
@@ -1114,14 +1137,6 @@ B.3.  Support Files
         <module>
           <name>ietf-yang-library</name>
           <revision>2019-01-04</revision>
-
-
-
-Quilbeuf, et al.         Expires 28 October 2024               [Page 20]
-
-Internet-Draft               YANG Full Embed                  April 2024
-
-
           <namespace>
               urn:ietf:params:xml:ns:yang:ietf-yang-library
           </namespace>
@@ -1155,6 +1170,14 @@ Internet-Draft               YANG Full Embed                  April 2024
       <schema>
         <name>main-schema</name>
         <module-set>main-set</module-set>
+
+
+
+Quilbeuf, et al.         Expires 6 January 2025                [Page 21]
+
+Internet-Draft               YANG Full Embed                   July 2024
+
+
       </schema>
       <datastore>
         <name>ds:running</name>
@@ -1170,14 +1193,6 @@ Internet-Draft               YANG Full Embed                  April 2024
       xmlns="urn:ietf:params:xml:ns:yang:ietf-yang-library">
       <module-set-id>2</module-set-id>
     </modules-state>
-
-
-
-Quilbeuf, et al.         Expires 28 October 2024               [Page 21]
-
-Internet-Draft               YANG Full Embed                  April 2024
-
-
    <CODE ENDS>
 
    <CODE BEGINS> file "extension_data.xml"
@@ -1211,6 +1226,14 @@ Internet-Draft               YANG Full Embed                  April 2024
                </namespace>
            </import-only-module>
            <import-only-module>
+
+
+
+Quilbeuf, et al.         Expires 6 January 2025                [Page 22]
+
+Internet-Draft               YANG Full Embed                   July 2024
+
+
                <name>ietf-inet-types</name>
                <revision>2013-07-15</revision>
                <namespace>
@@ -1226,14 +1249,6 @@ Internet-Draft               YANG Full Embed                  April 2024
            <name>ds:running</name>
            <schema>test-schema</schema>
        </datastore>
-
-
-
-Quilbeuf, et al.         Expires 28 October 2024               [Page 22]
-
-Internet-Draft               YANG Full Embed                  April 2024
-
-
        <datastore>
            <name>ds:operational</name>
            <schema>test-schema</schema>
@@ -1256,14 +1271,23 @@ Internet-Draft               YANG Full Embed                  April 2024
 
 Acknowledgements
 
-   Thanks to Ladislav Lhotka and Ignacio Dominguez Martinez-Casanueva
-   for their reviews and comments.
+   Thanks to Ladislav Lhotka, Ignacio Dominguez Martinez-Casanueva and
+   Andy Bierman for their reviews and comments.
 
 Authors' Addresses
 
    Jean Quilbeuf
    Huawei
    Email: jean.quilbeuf@huawei.com
+
+
+
+
+
+
+Quilbeuf, et al.         Expires 6 January 2025                [Page 23]
+
+Internet-Draft               YANG Full Embed                   July 2024
 
 
    Benoit Claise
@@ -1285,4 +1309,36 @@ Authors' Addresses
 
 
 
-Quilbeuf, et al.         Expires 28 October 2024               [Page 23]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Quilbeuf, et al.         Expires 6 January 2025                [Page 24]
