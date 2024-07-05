@@ -8,7 +8,7 @@
 <?xml-model href="rfc7991bis.rnc"?>
 <rfc
     xmlns:xi="http://www.w3.org/2001/XInclude"
-    docName="draft-jouqui-netmod-yang-full-include-{{ version }}"
+    docName="draft-jouqui-netmod-yang-full-include-02"
     category="std"
     ipr="trust200902"
     obsoletes=""
@@ -40,7 +40,7 @@
             <email>thomas.joubert1@huawei-partners.com</email>
         </address>
     </author>
-    <date year="{{year}}" month="{{month}}" day="{{day}}"/>
+    <date year="2024" month="4" day="26"/>
     <area>General</area>
     <workgroup>NETMOD</workgroup>
     <abstract>
@@ -322,7 +322,67 @@
             A module importing this extension SHOULD use the prefix 'full', so that the statement reads "full:embed" when used in the code.
         </t>
         <sourcecode name="ietf-full-embed@2023-11-03.yang" type="yang" markers="true" ><![CDATA[
-{{ full_include_yang }}
+module ietf-yang-full-embed {
+  yang-version 1.1;
+  namespace "urn:ietf:params:xml:ns:yang:ietf-yang-full-embed";
+  prefix full;
+
+  organization
+    "IETF NETMOD (NETCONF Data Modeling Language) Working Group";
+  contact
+    "WG Web:   <https://datatracker.ietf.org/wg/netmod/>
+     WG List:  <mailto:netmod@ietf.org>
+
+     Editor:   ";
+  description
+    "This module defines a YANG extension statement that can be used
+     to incorporate data models defined in other YANG modules in a
+     module.
+
+     The key words 'MUST', 'MUST NOT', 'REQUIRED', 'SHALL', 'SHALL
+     NOT', 'SHOULD', 'SHOULD NOT', 'RECOMMENDED', 'NOT RECOMMENDED',
+     'MAY', and 'OPTIONAL' in this document are to be interpreted as
+     described in BCP 14 (RFC 2119) (RFC 8174) when, and only when,
+     they appear in all capitals, as shown here.
+
+     Copyright (c) 2023 IETF Trust and the persons identified as
+     authors of the code.  All rights reserved.
+
+     Redistribution and use in source and binary forms, with or
+     without modification, is permitted pursuant to, and subject to
+     the license terms contained in, the Revised BSD License set
+     forth in Section 4.c of the IETF Trust's Legal Provisions
+     Relating to IETF Documents
+     (https://trustee.ietf.org/license-info).
+
+     This version of this YANG module is part of RFC XXXX;
+     see the RFC itself for full legal notices.";
+
+  revision 2023-11-05 {
+    description
+      "Initial revision.";
+    reference
+      "RFC XXXX: YANG Full Embed";
+  }
+
+  extension embed {
+    argument prefix;
+    description
+      "The argument 'prefix' MUST be the prefix of a module imported
+       by the calling module.
+
+       The 'embed' statement MUST NOT be used in a YANG version 1
+       module, neither explicitly nor via a 'uses' statement.
+
+       The 'embed' statement MAY be present as a substatement of
+       'anydata' and MUST NOT be present elsewhere.
+
+       Whenever a sequence of 'embed' statements is used, the schema
+       tree defined by the set of the included modules is inserted
+       in the schema tree of the calling module, at the place where
+       the sequence is declared";
+  }
+}
             ]]>
         </sourcecode>
     </section>
@@ -350,7 +410,41 @@
             <figure anchor="yanglib-augment-tree">
                 <name>Tree representation of the YANG library module augmented with mapping of schema to embedding points.</name>
                 <artwork type="ascii-art"><![CDATA[
-{{ yanglib_augment_tree }}
+module: ietf-yang-library
+  +--ro yang-library
+     +--ro module-set* [name]
+     |  +--ro name                  string
+     |  +--ro module* [name]
+     |  |  +--ro name         yang:yang-identifier
+     |  |  +--ro revision?    revision-identifier
+     |  |  +--ro namespace    inet:uri
+     |  |  +--ro location*    inet:uri
+     |  |  +--ro submodule* [name]
+     |  |  |  +--ro name        yang:yang-identifier
+     |  |  |  +--ro revision?   revision-identifier
+     |  |  |  +--ro location*   inet:uri
+     |  |  +--ro feature*     yang:yang-identifier
+     |  |  +--ro deviation*   -> ../../module/name
+     |  +--ro import-only-module* [name revision]
+     |     +--ro name         yang:yang-identifier
+     |     +--ro revision     union
+     |     +--ro namespace    inet:uri
+     |     +--ro location*    inet:uri
+     |     +--ro submodule* [name]
+     |        +--ro name        yang:yang-identifier
+     |        +--ro revision?   revision-identifier
+     |        +--ro location*   inet:uri
+     +--ro schema* [name]
+     |  +--ro name          string
+     |  +--ro module-set*   -> ../../module-set/name
+     +--ro datastore* [name]
+     |  +--ro name      ds:datastore-ref
+     |  +--ro schema    -> ../../schema/name
+     +--ro content-id                 string
+     +--ro emblib:embedding-points* [datastore embedding-path]
+        +--ro emblib:datastore         ds:datastore-ref
+        +--ro emblib:embedding-path    yang:xpath1.0
+        +--ro emblib:schema            -> ../../yanglib:schema/name
                 ]]>
                 </artwork>
             </figure>
@@ -367,7 +461,101 @@
                 We present below the YANG module augmenting the ietf-yang-library module (<xref target="RFC8525"/>).
             </t>
             <sourcecode name="ietf-full-embed-library@2023-11-03.yang" type="yang" markers="true"><![CDATA[
-{{ yanglib_augment_yang }}
+module ietf-yang-full-embed-library {
+  yang-version 1.1;
+  namespace
+    "urn:ietf:params:xml:ns:yang:ietf-yang-full-embed-library";
+  prefix emblib;
+
+  import ietf-datastores {
+    prefix ds;
+    reference
+      "RFC 8342: Network Management Datastore Architecture
+       (NMDA)";
+  }
+  import ietf-yang-library {
+    prefix yanglib;
+    reference
+      "RFC 8525: YANG Library";
+  }
+  import ietf-yang-types {
+    prefix yang;
+    reference
+      "RFC 6991: Common YANG Data Types";
+  }
+
+  organization
+    "IETF NETMOD (NETCONF Data Modeling Language) Working Group";
+  contact
+    "WG Web:   <https://datatracker.ietf.org/wg/netmod/>
+     WG List:  <mailto:netmod@ietf.org>
+
+     Editor:   ";
+  description
+    "This module augments the ietf-yang-library module to indicate
+     which modules are available in each embedding point.
+
+     The key words 'MUST', 'MUST NOT', 'REQUIRED', 'SHALL', 'SHALL
+     NOT', 'SHOULD', 'SHOULD NOT', 'RECOMMENDED', 'NOT RECOMMENDED',
+     'MAY', and 'OPTIONAL' in this document are to be interpreted as
+     described in BCP 14 (RFC 2119) (RFC 8174) when, and only when,
+     they appear in all capitals, as shown here.
+
+     Copyright (c) 2023 IETF Trust and the persons identified as
+     authors of the code.  All rights reserved.
+
+     Redistribution and use in source and binary forms, with or
+     without modification, is permitted pursuant to, and subject to
+     the license terms contained in, the Revised BSD License set
+     forth in Section 4.c of the IETF Trust's Legal Provisions
+     Relating to IETF Documents
+     (https://trustee.ietf.org/license-info).
+
+     This version of this YANG module is part of RFC XXXX;
+     see the RFC itself for full legal notices.";
+
+  revision 2023-11-05 {
+    description
+      "Initial revision.";
+    reference
+      "RFC XXXX: YANG Full Embed";
+  }
+
+  augment "/yanglib:yang-library" {
+    description
+      "Add mapping for embedding points";
+    list embedding-points {
+      key "datastore embedding-path";
+      description
+        "Mapping of each embedding point to its schema. An
+         embedding-point is defined by a datastore and a YANG
+         path to the anydata node containing the embedded schema.";
+      leaf datastore {
+        type ds:datastore-ref;
+        description
+          "Identity of the datastore containing the embedding point";
+      }
+      leaf embedding-path {
+        type yang:xpath1.0;
+        description
+          "Path to the embedding point in the datastore.
+           The XPath must be an absolute path. It is evaluated in the
+           context of the specified datastore.";
+      }
+      leaf schema {
+        type leafref {
+          path "../../yanglib:schema/yanglib:name";
+        }
+        mandatory true;
+        description
+          "A reference to the schema supported by the specified
+           embedding point. All non-import modules of the schema are
+           implemented in the given embedding point with their
+           associated features and deviations.";
+      }
+    }
+  }
+}
             ]]>
             </sourcecode>
         </section>
@@ -467,15 +655,6 @@ container network-instances {
         <section>
             <name>Changes between revisions</name>
             <t>
-                01 -> 02
-            </t>
-            <ul>
-                <li>Minor edits and presentation, added definitions</li>
-                <li>Clarified link with RFC8528</li>
-                <li>Added section on YANG library augmentation and YANG module</li>
-                <li>Added section about recursivity</li>
-            </ul>
-            <t>
                 00 -> 01
             </t>
             <ul>
@@ -501,7 +680,9 @@ container network-instances {
                 <name>YANG Tree representation of the device-level module.</name>
                 <artwork type="ascii-art">
                     <![CDATA[
-{{device_level_tree}}
+module: device-level
+  +--rw hostname     string
+  +--ro cpu-usage?   int8
         ]]>
                 </artwork>
             </figure>
@@ -513,7 +694,10 @@ container network-instances {
                 <name>YANG Tree representation of a stub for the network-level module</name>
                 <artwork type="ascii-art">
                     <![CDATA[
-{{network_level_tree_stub}}
+module: network-level-stub
+  +--rw devices
+     +--rw device* [device-id]
+        +--rw device-id    string
         ]]>
                 </artwork>
             </figure>
@@ -530,7 +714,31 @@ container network-instances {
                     <name>Version of the network-level module using full:embed</name>
                     <artwork type="ascii-art">
                         <![CDATA[
-{{network_level_fi_yang}}
+module network-level {
+  yang-version 1.1;
+  namespace "urn:network-level";
+  prefix "net-l";
+
+  import "ietf-yang-full-include" {
+    prefix "full";
+  }
+
+  import "device-level" {
+    prefix "dev-l";
+  }
+
+  container devices {
+    list device {
+      key device-id;
+      leaf device-id {
+        type string;
+      }
+      anydata device-content {
+           full:include "dev-l";
+      }
+    }
+  }
+}
                         ]]>
                     </artwork>
                 </figure>
@@ -551,7 +759,27 @@ container network-instances {
                     <name>Version of the network-level module using Schema Mount</name>
                     <artwork type="ascii-art">
                         <![CDATA[
-{{network_level_sm_yang}}
+module network-level {
+  yang-version 1.1;
+  namespace "urn:network-level";
+  prefix "net-l";
+
+  import ietf-yang-schema-mount {
+    prefix yangmnt;
+  }
+
+  container devices {
+    list device {
+      key device-id;
+      leaf device-id {
+        type string;
+      }
+      container device-contents{
+        yangmnt:mount-point "device-schema";
+      }
+    }
+  }
+}
                         ]]>
                     </artwork>
                 </figure>
@@ -591,16 +819,152 @@ module: network-level
                     <name>device-level YANG module</name>
                     <artwork type="ascii-art">
                         <![CDATA[
-{{device_level_yang}}
+module device-level {
+  yang-version 1.1;
+  namespace "urn:device-level";
+  prefix mnt;
+
+  leaf hostname {
+    type string;
+    mandatory true;
+  }
+  leaf cpu-usage {
+    type int8;
+    config false;
+  }
+}
                         ]]>
                     </artwork>
                 </figure>
                 <sourcecode name="network-level-yanglib.xml" type="xml" markers="true" ><![CDATA[
-{{network_level_yanglib_data}}
+<yang-library xmlns="urn:ietf:params:xml:ns:yang:ietf-yang-library"
+     xmlns:ds="urn:ietf:params:xml:ns:yang:ietf-datastores">
+   <module-set>
+     <name>main-set</name>
+     <module>
+       <name>ietf-datastores</name>
+       <revision>2018-02-14</revision>
+       <namespace>
+           urn:ietf:params:xml:ns:yang:ietf-datastores
+       </namespace>
+     </module>
+     <module>
+       <name>ietf-yang-library</name>
+       <revision>2019-01-04</revision>
+       <namespace>
+           urn:ietf:params:xml:ns:yang:ietf-yang-library
+       </namespace>
+     </module>
+     <module>
+       <name>ietf-yang-schema-mount</name>
+       <revision>2019-01-14</revision>
+       <namespace>
+           urn:ietf:params:xml:ns:yang:ietf-yang-schema-mount
+       </namespace>
+     </module>
+     <module>
+       <name>network-level</name>
+       <namespace>urn:network-level</namespace>
+     </module>
+     <import-only-module>
+       <name>ietf-yang-types</name>
+       <revision>2013-07-15</revision>
+       <namespace>
+           urn:ietf:params:xml:ns:yang:ietf-yang-types
+       </namespace>
+     </import-only-module>
+     <import-only-module>
+       <name>ietf-inet-types</name>
+       <revision>2013-07-15</revision>
+       <namespace>
+           urn:ietf:params:xml:ns:yang:ietf-inet-types
+       </namespace>
+     </import-only-module>
+   </module-set>
+   <schema>
+     <name>main-schema</name>
+     <module-set>main-set</module-set>
+   </schema>
+   <datastore>
+     <name>ds:running</name>
+     <schema>main-schema</schema>
+   </datastore>
+   <datastore>
+     <name>ds:operational</name>
+     <schema>main-schema</schema>
+   </datastore>
+   <content-id>1</content-id>
+ </yang-library>
+ <modules-state
+   xmlns="urn:ietf:params:xml:ns:yang:ietf-yang-library">
+   <module-set-id>2</module-set-id>
+ </modules-state>
                 ]]>
                 </sourcecode>
                 <sourcecode name="extension_data.xml" type="xml" markers="true" ><![CDATA[
-{{extension_data}}
+<yang-library xmlns="urn:ietf:params:xml:ns:yang:ietf-yang-library"
+             xmlns:ds="urn:ietf:params:xml:ns:yang:ietf-datastores">
+    <module-set>
+        <name>mountee-set</name>
+        <module>
+            <name>device-level</name>
+            <namespace>urn:device-level</namespace>
+        </module>
+        <module>
+            <name>ietf-datastores</name>
+            <revision>2018-02-14</revision>
+            <namespace>
+                urn:ietf:params:xml:ns:yang:ietf-datastores
+            </namespace>
+        </module>
+        <module>
+            <name>ietf-yang-library</name>
+            <revision>2019-01-04</revision>
+            <namespace>
+                urn:ietf:params:xml:ns:yang:ietf-yang-library
+            </namespace>
+        </module>
+        <import-only-module>
+            <name>ietf-yang-types</name>
+            <revision>2013-07-15</revision>
+            <namespace>
+                urn:ietf:params:xml:ns:yang:ietf-yang-types
+            </namespace>
+        </import-only-module>
+        <import-only-module>
+            <name>ietf-inet-types</name>
+            <revision>2013-07-15</revision>
+            <namespace>
+                urn:ietf:params:xml:ns:yang:ietf-inet-types
+            </namespace>
+        </import-only-module>
+    </module-set>
+    <schema>
+        <name>test-schema</name>
+        <module-set>mountee-set</module-set>
+    </schema>
+    <datastore>
+        <name>ds:running</name>
+        <schema>test-schema</schema>
+    </datastore>
+    <datastore>
+        <name>ds:operational</name>
+        <schema>test-schema</schema>
+    </datastore>
+    <content-id>2</content-id>
+</yang-library>
+<modules-state
+    xmlns="urn:ietf:params:xml:ns:yang:ietf-yang-library">
+    <module-set-id>2</module-set-id>
+</modules-state>
+<schema-mounts
+    xmlns="urn:ietf:params:xml:ns:yang:ietf-yang-schema-mount">
+    <mount-point>
+        <module>network-level</module>
+        <label>device-schema</label>
+        <shared-schema/>
+    </mount-point>
+</schema-mounts>
                 ]]>
                 </sourcecode>
             </section>
@@ -608,7 +972,7 @@ module: network-level
         <section numbered="false">
             <name>Acknowledgements</name>
             <t>
-                Thanks to Ladislav Lhotka, Ignacio Dominguez Martinez-Casanueva and Andy Bierman for their reviews and comments.
+                Thanks to Ladislav Lhotka and Ignacio Dominguez Martinez-Casanueva for their reviews and comments.
             </t>
         </section>
     </back>

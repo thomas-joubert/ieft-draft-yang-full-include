@@ -36,8 +36,11 @@ def _execute_pyang(options: List[str], filenames: List[str]):
     return result.stderr, result.stdout
 
 
-def _build_tree(filenames):
-    return _execute_pyang(["-f", "tree", "--tree-line-length", "69"], filenames)
+def _build_tree(filenames, restrict_path=None):
+    params = ["-f", "tree", "--tree-line-length", "69"]
+    if restrict_path is not None:
+        params += ["--tree-path", restrict_path]
+    return _execute_pyang(params, filenames)
 
 
 def _format_yang(filenames, ietf=True):
@@ -71,6 +74,8 @@ DEVICE_LEVEL_YANG = _find_yang_file("device-level")
 NETWORK_LEVEL_STUB_YANG = _find_yang_file("network-level-stub")
 NETWORK_LEVEL_YANG = _find_yang_file("network-level")
 NETWORK_LEVEL_SM_YANG = os.path.join(SM_YANG_DIR, "network-level.yang")
+FULL_INCLUDE_LIB_YANG = _find_yang_file("ietf-yang-full-embed-library")
+YANG_LIB = _find_yang_file("ietf-yang-library")
 
 
 def draft_content():
@@ -83,6 +88,8 @@ def draft_content():
         "device_level_yang": _format_yang([DEVICE_LEVEL_YANG], ietf=False),
         "network_level_yanglib_data": ("", open(os.path.join(SM_YANG_DIR, "..", "network-level-yanglib.xml")).read()),
         "extension_data": ("", open(os.path.join(SM_YANG_DIR, "..", "extension-data.xml")).read()),
+        "yanglib_augment_yang": _format_yang([FULL_INCLUDE_LIB_YANG]),
+        "yanglib_augment_tree": _build_tree([YANG_LIB, FULL_INCLUDE_LIB_YANG], restrict_path="/yang-library"),
     }
     errors = []
     contents = {}
